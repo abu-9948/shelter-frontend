@@ -46,6 +46,7 @@ const SignInPage = () => {
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message;
+      console.log(errorMessage);
       switch (errorMessage) {
         case 'User not found':
           setError('No account found with this email. Please sign up first.');
