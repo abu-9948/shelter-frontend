@@ -1,89 +1,94 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from "./ui/button";
-import { Menu, X, User, LogIn, LogOut } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X, User, LogOut } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { useAuth } from '../contexts/AuthContext';
 
-const Navbar = () => {
+const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
-  const navigate = useNavigate();
+  const { isAuthenticated, logout, user } = useAuth();
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/signin');
-    setIsMobileMenuOpen(false);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
-  // Desktop auth buttons component
   const DesktopAuthButtons = () => {
     if (isAuthenticated) {
       return (
-        <Button 
-          variant="ghost" 
-          className="flex items-center"
-          onClick={handleLogout}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Logout
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <User className="h-4 w-4" />
+              {user?.name || 'Account'}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem asChild>
+              <Link to="/profile" className="flex items-center">
+                <User className="mr-2 h-4 w-4" />
+                Profile
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={logout} className="text-red-600">
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     }
-
     return (
       <>
         <Link to="/signin">
-          <Button variant="ghost" className="flex items-center">
-            <LogIn className="h-4 w-4 mr-2" />
-            Sign In
-          </Button>
+          <Button variant="outline">Sign In</Button>
         </Link>
         <Link to="/signup">
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            <User className="h-4 w-4 mr-2" />
-            Sign Up
-          </Button>
+          <Button className="bg-blue-600 hover:bg-blue-700">Sign Up</Button>
         </Link>
       </>
     );
   };
 
-  // Mobile auth buttons component
   const MobileAuthButtons = () => {
     if (isAuthenticated) {
       return (
-        <Button 
-          variant="ghost" 
-          className="justify-start w-full"
-          onClick={handleLogout}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Logout
-        </Button>
+        <>
+          <Link 
+            to="/profile" 
+            className="text-gray-700 hover:text-blue-600 px-2 py-1 transition-colors flex items-center gap-2"
+            onClick={closeMobileMenu}
+          >
+            <User className="h-4 w-4" />
+            Profile
+          </Link>
+          <Button 
+            variant="ghost" 
+            onClick={() => {
+              logout();
+              closeMobileMenu();
+            }}
+            className="justify-start text-red-600 hover:text-red-700 hover:bg-red-50 w-full"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </Button>
+        </>
       );
     }
-
     return (
       <>
         <Link to="/signin" onClick={closeMobileMenu}>
-          <Button variant="ghost" className="justify-start w-full">
-            <LogIn className="h-4 w-4 mr-2" />
-            Sign In
-          </Button>
+          <Button variant="outline" className="w-full">Sign In</Button>
         </Link>
         <Link to="/signup" onClick={closeMobileMenu}>
-          <Button className="bg-blue-600 hover:bg-blue-700 justify-start w-full">
-            <User className="h-4 w-4 mr-2" />
-            Sign Up
-          </Button>
+          <Button className="w-full bg-blue-600 hover:bg-blue-700">Sign Up</Button>
         </Link>
       </>
     );
@@ -181,4 +186,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Navigation;

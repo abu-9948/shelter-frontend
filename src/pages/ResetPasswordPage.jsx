@@ -51,8 +51,9 @@ const ResetPasswordPage = () => {
 
       setSuccess('Password reset successful! Redirecting to login...');
       setTimeout(() => {
-        navigate('/login');
+        navigate('/signin');
       }, 2000);
+
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to reset password');
     } finally {

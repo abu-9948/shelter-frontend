@@ -13,6 +13,7 @@ import { Label } from "../components/ui/label";
 import { Mail, Lock } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import Cookies from 'js-cookie';
 
 const SignInPage = () => {
   const [email, setEmail] = useState('');
@@ -21,7 +22,7 @@ const SignInPage = () => {
   const [forgotPassword, setForgotPassword] = useState(false);
   const [forgotPasswordMessage, setForgotPasswordMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -31,18 +32,19 @@ const SignInPage = () => {
     setError('');
 
     try {
-      const response = await axios.post(process.env.REACT_APP_LOGIN, {
-        email,
-        password,
-      });
+      const response = await axios.post(process.env.REACT_APP_LOGIN, { email, password }, { withCredentials: true });
 
+      const token = Cookies.get('token');
+      console.log("token: ", token)
       const data = response.data;
+      console.log("data: ", data)
       if (!data) {
         setError("Looks like you don't have an account please signed up.");
       } else {
-        setError('');
-        login(); // Update auth context
-        navigate('/'); // Redirect to home page
+        if (token) {
+          login(token);
+          navigate('/');
+        }
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message;
@@ -67,6 +69,7 @@ const SignInPage = () => {
       const response = await axios.post(process.env.REACT_APP_FORGOT_PASSWORD, {
         email,
       });
+      console.log(response)
       setForgotPasswordMessage('Password reset link sent to your email.');
     } catch (error) {
       setForgotPasswordMessage(
