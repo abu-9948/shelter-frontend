@@ -1,36 +1,51 @@
-import React, { createContext, useContext, useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import {jwtDecode} from 'jwt-decode';
+import Cookies from 'js-cookie';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+  const [userId, setUserId] = useState(null);
+  const [token, setToken] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
-  const login = () => {
-    setIsAuthenticated(true);
-  };
 
-  const logout = async () => {
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserId(decoded.id);
+        setIsAuthenticated(true);
+        setToken(token)
+      } catch (error) {
+        Cookies.remove('token');
+      }
+    }
+  }, []);
+
+  const login = (token) => {
     try {
-      await axios.post('/api/logout', {}, { withCredentials: true });
-      setIsAuthenticated(false);
+      const decoded = jwtDecode(token);
+      setUserId(decoded.id);
+      setIsAuthenticated(true);
+      setToken(token)
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Login error:', error);
     }
   };
 
+  const logout = () => {
+    Cookies.remove('token');
+    setUserId(null);
+    setToken(null)
+    setIsAuthenticated(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ userId, isAuthenticated, login, logout, token }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
