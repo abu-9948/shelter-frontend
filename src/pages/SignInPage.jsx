@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -10,54 +10,90 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { Label } from "../components/ui/label";
-import { Mail, Lock } from 'lucide-react';
+import { Mail, Lock, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import Cookies from 'js-cookie';
+import { Toaster, toast } from 'react-hot-toast';
 
 const SignInPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [forgotPassword, setForgotPassword] = useState(false);
   const [forgotPasswordMessage, setForgotPasswordMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [resetLinkLoading, setResetLinkLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
 
-  const handleSignIn = async (e) => {
-    e?.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const response = await axios.post(process.env.REACT_APP_LOGIN, { email, password }, { withCredentials: true });
-
-      const token = Cookies.get('token');
-      console.log("token: ", token)
-      const data = response.data;
-      console.log("data: ", data)
-      if (!data) {
-        setError("Looks like you don't have an account please signed up.");
-      } else {
-        if (token) {
-          login(token);
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = Cookies.get('token');
+        if (token && user) {
           navigate('/');
         }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      } finally {
+        setPageLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [user, navigate]);
+
+  const validateEmail = (email) => {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(email);
+  };
+
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    if (!validateEmail(email)) {
+      toast.error("Please enter a valid email address");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!password) {
+      toast.error("Password is required");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_AUTH_URL}/login`,
+        { email: email.toLowerCase(), password },
+        { withCredentials: true }
+      );
+
+      const { token } = response.data;
+      if (token) {
+        await login(token);
+        navigate('/');
+      } else {
+        toast.error("Authentication failed");
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message;
-      console.log(errorMessage);
-      switch (errorMessage) {
-        case 'User not found':
-          setError('No account found with this email. Please sign up first.');
+      const message = error.response?.data?.message;
+
+      switch (error.response?.status) {
+        case 400:
+          toast.error(message === 'User not found' ?
+            'Account not found. Please sign up first.' :
+            'Invalid credentials');
           break;
-        case 'Invalid credentials':
-          setError('Incorrect password. Please try again.');
+        case 500:
+          toast.error('Server error. Please try again later.');
           break;
         default:
-          setError(error.response?.data?.message || 'Something went wrong');
+          toast.error(message || 'Something went wrong');
       }
     } finally {
       setIsLoading(false);
@@ -65,18 +101,46 @@ const SignInPage = () => {
   };
 
   const handleForgotPassword = async () => {
+    if (!validateEmail(email)) {
+      setForgotPasswordMessage("Please enter a valid email address");
+      return;
+    }
+
+    setResetLinkLoading(true);
+    setForgotPasswordMessage('');
+
     try {
-      const response = await axios.post(process.env.REACT_APP_FORGOT_PASSWORD, {
-        email,
-      });
-      console.log(response)
-      setForgotPasswordMessage('Password reset link sent to your email.');
-    } catch (error) {
-      setForgotPasswordMessage(
-        error.response?.data?.message || 'Something went wrong'
+      await axios.post(
+        `${process.env.REACT_APP_AUTH_URL}/request-password-reset`,
+        { email }
       );
+      setForgotPasswordMessage('Password reset link sent to your email');
+    } catch (error) {
+      const status = error.response?.status;
+      const message = error.response?.data?.message;
+
+      switch (status) {
+        case 404:
+          setForgotPasswordMessage('No account found with this email');
+          break;
+        case 429:
+          setForgotPasswordMessage('Too many attempts. Please try again later.');
+          break;
+        default:
+          setForgotPasswordMessage(message || 'Failed to send reset link');
+      }
+    } finally {
+      setResetLinkLoading(false);
     }
   };
+
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-lime-50">
+        <Loader2 className="h-8 w-8 animate-spin text-lime-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-lime-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -94,53 +158,70 @@ const SignInPage = () => {
             {forgotPassword ? (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="reset-email">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
-                      id="email"
-                      name="email"
+                      id="reset-email"
                       type="email"
-                      placeholder="your@email.com"
+                      value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your@email.com"
                       className="pl-10"
+                      disabled={resetLinkLoading}
                       required
                     />
                   </div>
                 </div>
                 <Button
                   onClick={handleForgotPassword}
+                  disabled={resetLinkLoading}
                   className="w-full bg-lime-600 hover:bg-lime-700"
                 >
-                  Send Reset Link
+                  {resetLinkLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    'Send Reset Link'
+                  )}
                 </Button>
-                <p className="text-center text-sm text-gray-600">
-                  <Button
-                    type="button"
-                    variant="link"
-                    onClick={() => setForgotPassword(false)}
-                    className="text-lime-600 hover:text-lime-500"
-                  >
-                    Back to Sign In
-                  </Button>
-                </p>
-                <p className="text-center text-sm text-gray-600">
-                  {forgotPasswordMessage}
-                </p>
+                <Button
+                  type="button"
+                  variant="link"
+                  onClick={() => {
+                    setForgotPassword(false);
+                    setForgotPasswordMessage('');
+                  }}
+                  className="w-full text-lime-600 hover:text-lime-500"
+                  disabled={resetLinkLoading}
+                >
+                  Back to Sign In
+                </Button>
+                {forgotPasswordMessage && (
+                  <p className={`text-center text-sm ${forgotPasswordMessage.includes('sent')
+                    ? 'text-green-600'
+                    : 'text-red-600'
+                    }`}>
+                    {forgotPasswordMessage}
+                  </p>
+                )}
               </div>
             ) : (
-              <form className="space-y-4" onSubmit={handleSignIn}>
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="email"
-                      name="email"
                       type="email"
-                      placeholder="your@email.com"
+                      value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your@email.com"
                       className="pl-10"
+                      disabled={isLoading}
                       required
                     />
                   </div>
@@ -153,6 +234,7 @@ const SignInPage = () => {
                       variant="link"
                       onClick={() => setForgotPassword(true)}
                       className="text-sm text-lime-600 hover:text-lime-500"
+                      disabled={isLoading}
                     >
                       Forgot password?
                     </Button>
@@ -161,21 +243,29 @@ const SignInPage = () => {
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="password"
-                      name="password"
                       type="password"
-                      placeholder="••••••••"
+                      value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
                       className="pl-10"
+                      disabled={isLoading}
                       required
                     />
                   </div>
                 </div>
                 <Button
-                  type="submit"
+                  onClick={handleSignIn}
                   disabled={isLoading}
                   className="w-full bg-lime-600 hover:bg-lime-700"
                 >
-                  {isLoading ? 'Signing in...' : 'Sign In'}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    'Sign In'
+                  )}
                 </Button>
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -191,7 +281,7 @@ const SignInPage = () => {
                   type="button"
                   variant="outline"
                   className="w-full"
-                  onClick={() => console.log('Google Sign-In clicked')}
+                  disabled={isLoading}
                 >
                   <img
                     src="https://cdn.cdnlogo.com/logos/g/35/google-icon.svg"
@@ -209,12 +299,12 @@ const SignInPage = () => {
                     Sign up
                   </a>
                 </p>
-                <p className="text-center text-sm text-red-600">{error}</p>
-              </form>
+              </div>
             )}
           </CardContent>
         </Card>
       </div>
+      <Toaster position="top-center"/>
     </div>
   );
 };
