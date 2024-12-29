@@ -2,23 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Label } from "../components/ui/label";
-import { User, Mail, Lock, Phone } from 'lucide-react';
+import { User, Mail, Lock, Phone, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { Toaster, toast } from 'react-hot-toast';
 
 const SignUpPage = () => {
   const [name, setName] = useState('');
@@ -26,53 +15,55 @@ const SignUpPage = () => {
   const [password, setPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [role, setRole] = useState('');
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
 
-  const handleSignUp = async (e) => {
-    e.preventDefault();
+  const validateInputs = () => {
+    if (!name.trim()) return "Name is required";
+    if (!email.trim()) return "Email is required";
+    if (!/\S+@\S+\.\S+/.test(email)) return "Please enter a valid email";
+    if (!password || password.length < 6) return "Password must be at least 6 characters";
+    if (!phoneNumber.trim()) return "Phone number is required";
+    if (!role) return "Please select your role";
+    return null;
+  };
+
+  const handleSignUp = async () => {
+    const validationError = validateInputs();
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
     setIsLoading(true);
-    setError('');
-    setSuccessMessage('');
 
     try {
-      const response = await axios.post(process.env.REACT_APP_REGISTER, {
+      await axios.post(`${process.env.REACT_APP_AUTH_URL}/register`, {
         name,
-        email,
+        email: email.toLowerCase(),
         password,
         phone: phoneNumber,
-        role,
+        role
       });
 
-      if (response.status === 201) {
-        setSuccessMessage("Account created successfully! Redirecting to login...");
-        // Wait for 1.5 seconds before redirecting to show the success message
-        setTimeout(() => {
-          navigate('/signin');
-        }, 1500);
-      }
+      toast.success("Account created successfully! Redirecting to login...");
+      setTimeout(() => navigate('/signin'), 1500);
     } catch (error) {
       const errorMessage = error.response?.data?.message;
+      const validationErrors = error.response?.data?.errors;
       
-      if (errorMessage === 'User with this email already exists') {
-        setError('An account with this email already exists. Please sign in.');
-        // Redirect to signin after showing the error message
-        setTimeout(() => {
-          navigate('/signin');
-        }, 2000);
+      if (validationErrors) {
+        toast.error(validationErrors.map(err => err.msg).join(', '));
+      } else if (errorMessage === 'User with this email already exists') {
+        toast.error('An account with this email already exists. Please sign in.');
+        setTimeout(() => navigate('/signin'), 2000);
       } else {
-        setError(errorMessage || "Something went wrong during registration");
+        toast.error(errorMessage || "Registration failed. Please try again.");
       }
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGoogleSignUp = () => {
-    console.log('Google Sign Up clicked');
   };
 
   return (
@@ -80,95 +71,77 @@ const SignUpPage = () => {
       <div className="max-w-md mx-auto">
         <Card className="bg-white">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">
-              Create an Account
-            </CardTitle>
-            <CardDescription className="text-center">
-              Enter your information to create your account
-            </CardDescription>
+            <CardTitle className="text-2xl font-bold text-center">Create an Account</CardTitle>
+            <CardDescription className="text-center">Enter your information to create your account</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSignUp} className="space-y-4">
-              {/* Name Input */}
+            <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="name"
-                    name="name"
+                    value={name}
                     placeholder="John Doe"
                     onChange={(e) => setName(e.target.value)}
                     className="pl-10"
-                    required
                     disabled={isLoading}
                   />
                 </div>
               </div>
 
-              {/* Email Input */}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="email"
-                    name="email"
                     type="email"
+                    value={email}
                     placeholder="your@email.com"
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
-                    required
                     disabled={isLoading}
                   />
                 </div>
               </div>
 
-              {/* Password Input */}
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="password"
-                    name="password"
                     type="password"
+                    value={password}
                     placeholder="••••••••"
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10"
-                    required
                     disabled={isLoading}
-                    minLength={6}
                   />
                 </div>
               </div>
 
-              {/* Phone Input */}
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="phone"
-                    name="phone"
                     type="tel"
+                    value={phoneNumber}
                     placeholder="Your phone number"
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     className="pl-10"
-                    required
                     disabled={isLoading}
                   />
                 </div>
               </div>
 
-              {/* Role Select */}
               <div className="space-y-2">
                 <Label htmlFor="role">I am a</Label>
-                <Select
-                  onValueChange={(value) => setRole(value)}
-                  value={role}
-                  disabled={isLoading}
-                >
+                <Select onValueChange={setRole} value={role} disabled={isLoading}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
@@ -179,44 +152,31 @@ const SignUpPage = () => {
                 </Select>
               </div>
 
-              {/* Submit Button */}
               <Button
-                type="submit"
+                onClick={handleSignUp}
                 className="w-full bg-lime-600 hover:bg-lime-700"
                 disabled={isLoading}
               >
-                {isLoading ? 'Creating Account...' : 'Create Account'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating Account...
+                  </>
+                ) : 'Create Account'}
               </Button>
 
-              {/* Success/Error Messages */}
-              {successMessage && (
-                <p className="text-center text-sm text-green-600">
-                  {successMessage}
-                </p>
-              )}
-              {error && (
-                <p className="text-center text-sm text-red-600">
-                  {error}
-                </p>
-              )}
-
-              {/* Google Sign Up */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-white px-2 text-gray-500">
-                    Or continue with
-                  </span>
+                  <span className="bg-white px-2 text-gray-500">Or continue with</span>
                 </div>
               </div>
 
               <Button
-                type="button"
                 variant="outline"
                 className="w-full"
-                onClick={handleGoogleSignUp}
                 disabled={isLoading}
               >
                 <img
@@ -227,20 +187,17 @@ const SignUpPage = () => {
                 Sign up with Google
               </Button>
 
-              {/* Sign In Link */}
               <p className="text-center text-sm text-gray-600">
                 Already have an account?{' '}
-                <a
-                  href="/signin"
-                  className="font-medium text-lime-600 hover:text-lime-500"
-                >
+                <a href="/signin" className="font-medium text-lime-600 hover:text-lime-500">
                   Sign in
                 </a>
               </p>
-            </form>
+            </div>
           </CardContent>
         </Card>
       </div>
+      <Toaster position="top-center"/>
     </div>
   );
 };

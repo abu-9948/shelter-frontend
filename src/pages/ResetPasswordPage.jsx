@@ -44,15 +44,17 @@ const ResetPasswordPage = () => {
     }
 
     try {
-      const response = await axios.post(process.env.REACT_APP_RESET_PASSWORD, {
+      const response = await axios.post(`${process.env.REACT_APP_AUTH_URL}/reset-password`, {
         token,
         newPassword
       });
 
-      setSuccess('Password reset successful! Redirecting to login...');
+      setSuccess('Password reset successful! Redirecting to signin...');
       setTimeout(() => {
         navigate('/signin');
       }, 2000);
+
+      console.log(response)
 
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to reset password');
@@ -121,7 +123,7 @@ const ResetPasswordPage = () => {
               <p className="text-center text-sm text-gray-600">
                 Remember your password?{' '}
                 <a
-                  href="/login"
+                  href="/signin"
                   className="font-medium text-lime-600 hover:text-lime-500"
                 >
                   Sign in
