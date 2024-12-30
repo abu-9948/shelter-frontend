@@ -7,6 +7,7 @@ import { toast, Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import AccommodationList from '../components/AccommodationList';
 import Loader from '../components/Loader';
+import { Plus } from 'lucide-react';
 
 const ManageAccommodations = () => {
   const [accommodations, setAccommodations] = useState([]);
@@ -58,8 +59,7 @@ const ManageAccommodations = () => {
           <Button 
             onClick={() => navigate('/post-accommodation')}
             className="bg-[#6366F1] hover:bg-blue-700"
-          >
-            Add New
+          > <Plus />New Accommodation
           </Button>
         </div>
 

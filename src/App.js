@@ -1,7 +1,7 @@
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import { PublicRoute } from './components/PublicRoute';
+import { RouteWrapper } from './components/RouteWrapper';
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import SignInPage from "./pages/SignInPage";
@@ -15,14 +15,20 @@ import AccommodationsPage from './pages/AccommodationsPage';
 import AboutPage from './pages/AboutPage';
 import AccommodationDetails from './pages/AccommodationDetails';
 
-const NotFound = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="text-center">
-      <h1 className="text-4xl font-bold text-[#6366F1] mb-4">404</h1>
-      <p className="text-gray-600 mb-4">Page not found</p>
+const NotFound = () => {
+  useEffect(() => {
+    document.title = "404 - Page Not Found";
+  }, []);
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-[#6366F1] mb-4">404</h1>
+        <p className="text-gray-600 mb-4">Page not found</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
 
 function App() {
   return (
@@ -33,56 +39,59 @@ function App() {
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={
-                <HomePage />
+                <RouteWrapper title="Home">
+                  <HomePage />
+                </RouteWrapper>
               } />
               <Route path="/about" element={
-                <AboutPage />
+                <RouteWrapper title="About Us">
+                  <AboutPage />
+                </RouteWrapper>
               } />
               <Route path="/signin" element={
-                <PublicRoute>
-                  <SignInPage />
-                </PublicRoute>
+                <RouteWrapper title="Sign In" isPublicOnly>
+                    <SignInPage />
+                </RouteWrapper>
               } />
               <Route path="/signup" element={
-                <PublicRoute>
-                  <SignUpPage />
-                </PublicRoute>
+                <RouteWrapper title="Sign Up" isPublicOnly>
+                    <SignUpPage />
+                </RouteWrapper>
               } />
               <Route path="/reset-password/:token" element={
-                <PublicRoute>
-                  <ResetPasswordPage />
-                </PublicRoute>
+                <RouteWrapper title="Reset Password" requireAuth>
+                    <ResetPasswordPage />
+                </RouteWrapper>
               } />
               <Route path="/profile" element={
-                <ProtectedRoute>
-                  <ProfilePage />
-                </ProtectedRoute>
+                <RouteWrapper title="Profile" requireAuth>
+                    <ProfilePage />
+                </RouteWrapper>
               } />
               <Route path="/post-accommodation" element={
-                <ProtectedRoute>
-                  <PostAccommodation />
-                </ProtectedRoute>
+                <RouteWrapper title="Post Accommodation" requireAuth>
+                    <PostAccommodation />
+                </RouteWrapper>
               } />
               <Route path="manage-accommodations" element={
-                <ProtectedRoute>
-                  <ManageAccommodations />
-                </ProtectedRoute>
+                <RouteWrapper title="Manage Accommodations" requireAuth>
+                    <ManageAccommodations />
+                </RouteWrapper>
               } />
               <Route path="/manage-accommodation/:id" element={
-                <ProtectedRoute>
-                  <EditAccommodation />
-                </ProtectedRoute>
+                <RouteWrapper title="Edit Accommodation" requireAuth>
+                    <EditAccommodation />
+                </RouteWrapper>
               } />
-              
               <Route path="/accommodations" element={
-                <ProtectedRoute>
-                  <AccommodationsPage />
-                </ProtectedRoute>
+                <RouteWrapper title="Accommodations" requireAuth>
+                    <AccommodationsPage />
+                </RouteWrapper>
               } />
               <Route path="/accommodations/:id" element={
-                <ProtectedRoute>
-                  <AccommodationDetails />
-                </ProtectedRoute>
+                <RouteWrapper title="Accommodation Details" requireAuth>
+                    <AccommodationDetails />
+                </RouteWrapper>
               } />
               <Route path="*" element={<NotFound />} />
             </Routes>
