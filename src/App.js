@@ -14,6 +14,7 @@ import EditAccommodation from './pages/EditAccommodation';
 import AccommodationsPage from './pages/AccommodationsPage';
 import AboutPage from './pages/AboutPage';
 import AccommodationDetails from './pages/AccommodationDetails';
+import Footer from './components/Footer';
 
 const NotFound = () => {
   useEffect(() => {
@@ -96,6 +97,7 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
+          <Footer />
         </div>
       </Router>
     </AuthProvider>
