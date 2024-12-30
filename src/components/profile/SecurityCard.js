@@ -1,4 +1,3 @@
-// components/profile/SecurityCard.jsx
 import React from 'react';
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -47,7 +46,7 @@ const SecurityCard = ({
               <Button
                 onClick={onPasswordChange}
                 disabled={isActionLoading}
-                className="bg-lime-600 hover:bg-lime-700"
+                className="bg-[#6366F1] hover:bg-blue-700"
               >
                 {isActionLoading ? (
                   <>
@@ -73,7 +72,7 @@ const SecurityCard = ({
         ) : (
           <Button
             onClick={onStartPasswordChange}
-            className="w-full bg-lime-600 hover:bg-lime-700"
+            className="w-full bg-[#6366F1] hover:bg-blue-700"
             disabled={isActionLoading}
           >
             <KeyRound className="mr-2 h-4 w-4" />

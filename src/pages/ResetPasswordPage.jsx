@@ -29,14 +29,12 @@ const ResetPasswordPage = () => {
     setError('');
     setSuccess('');
 
-    // Validate passwords match
     if (newPassword !== confirmPassword) {
       setError('Passwords do not match');
       setIsLoading(false);
       return;
     }
 
-    // Validate password length
     if (newPassword.length < 6) {
       setError('Password must be at least 6 characters long');
       setIsLoading(false);
@@ -64,7 +62,7 @@ const ResetPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-lime-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-blue-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto">
         <Card className="bg-white">
           <CardHeader className="space-y-1">
@@ -116,7 +114,7 @@ const ResetPasswordPage = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-lime-600 hover:bg-lime-700"
+                className="w-full bg-[#6366F1] hover:bg-blue-700"
               >
                 {isLoading ? 'Resetting Password...' : 'Reset Password'}
               </Button>
@@ -124,7 +122,7 @@ const ResetPasswordPage = () => {
                 Remember your password?{' '}
                 <a
                   href="/signin"
-                  className="font-medium text-lime-600 hover:text-lime-500"
+                  className="font-medium text-[#6366F1] hover:text-blue-500"
                 >
                   Sign in
                 </a>

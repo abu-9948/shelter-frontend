@@ -15,8 +15,10 @@ import {
     Users,
     Hash,
     Clock,
-    Loader2
+    Loader2,
+    ArrowLeft
 } from 'lucide-react';
+import Loader from '../components/Loader';
 
 const AccommodationDetails = () => {
     const { id } = useParams();
@@ -38,7 +40,6 @@ const AccommodationDetails = () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/room/${id}`);
             setAccommodation(response.data);
-            // Assuming reviews are part of the accommodation data or fetched separately
             setReviews(response.data.reviews || []);
         } catch (error) {
             toast.error('Failed to fetch accommodation details');
@@ -65,7 +66,7 @@ const AccommodationDetails = () => {
             toast.success('Review submitted successfully');
             setReview('');
             setRating(5);
-            fetchAccommodationDetails(); // Refresh to show new review
+            fetchAccommodationDetails();
         } catch (error) {
             toast.error('Failed to submit review');
         } finally {
@@ -75,9 +76,7 @@ const AccommodationDetails = () => {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center min-h-screen">
-                <Loader2 className="h-8 w-8 animate-spin text-lime-600" />
-            </div>
+            <Loader />
         );
     }
 
@@ -91,8 +90,17 @@ const AccommodationDetails = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto">
+                <Button
+                    variant="ghost"
+                    onClick={() => navigate('/accommodations')}
+                    className="mb-4"
+                >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Accommodations
+                </Button>
+            </div>
             <div className="max-w-4xl mx-auto space-y-8">
-                {/* Main Details Card */}
                 <Card>
                     <CardHeader>
                         <div className="flex justify-between items-start">
@@ -103,20 +111,20 @@ const AccommodationDetails = () => {
                                     <span>{accommodation.location}</span>
                                 </div>
                             </div>
-                            <div className="flex items-center bg-lime-100 px-3 py-1 rounded-full">
-                                <Star className="h-5 w-5 text-lime-600 mr-1" fill="currentColor" />
-                                <span className="font-semibold text-lime-600">{accommodation.rating}/5</span>
+                            <div className="flex items-center bg-violet-100 px-3 py-1 rounded-full">
+                                <Star className="h-5 w-5 text-[#6366F1] mr-1" fill="currentColor" />
+                                <span className="font-semibold text-[#6366F1]">{accommodation.rating}/5</span>
                             </div>
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        {/* Property Details */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-3">
-                                <div className="flex items-center">
+                                {accommodation.companyName && <div className="flex items-center">
                                     <Building2 className="h-5 w-5 text-gray-400 mr-2" />
                                     <span className="text-gray-600">{accommodation.companyName}</span>
-                                </div>
+                                </div>}
+
                                 <div className="flex items-center">
                                     <DollarSign className="h-5 w-5 text-gray-400 mr-2" />
                                     <span className="text-gray-600">₹{accommodation.price}/month</span>
@@ -133,24 +141,21 @@ const AccommodationDetails = () => {
                                 </div>
                                 <div className="flex items-center">
                                     <Hash className="h-5 w-5 text-gray-400 mr-2" />
-                                    <span className="text-gray-600">Flat {accommodation.flatNumber}</span>
+                                    <span className="text-gray-600">Flat: {accommodation.flatNumber}</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Description */}
                         <div>
                             <h3 className="font-semibold mb-2">Description</h3>
                             <p className="text-gray-600">{accommodation.description}</p>
                         </div>
 
-                        {/* Address */}
                         <div>
                             <h3 className="font-semibold mb-2">Address</h3>
                             <p className="text-gray-600">{accommodation.address}</p>
                         </div>
 
-                        {/* Amenities */}
                         <div>
                             <h3 className="font-semibold mb-2">Amenities</h3>
                             <div className="flex flex-wrap gap-2">
@@ -168,7 +173,6 @@ const AccommodationDetails = () => {
                     </CardContent>
                 </Card>
 
-                {/* Reviews Section */}
                 <Card>
                     <CardHeader>
                         <CardTitle>Reviews</CardTitle>
@@ -202,7 +206,7 @@ const AccommodationDetails = () => {
                                 <Button
                                     onClick={handleSubmitReview}
                                     disabled={isSubmitting}
-                                    className="bg-lime-600 hover:bg-lime-700"
+                                    className="bg-[#6366F1] hover:bg-blue-600"
                                 >
                                     {isSubmitting ? (
                                         <>

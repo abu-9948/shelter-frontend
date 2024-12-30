@@ -14,6 +14,7 @@ import axios from 'axios';
 import AccommodationList from '../components/AccommodationList';
 import ProfileInfoCard from '../components/profile/ProfileInfoCard';
 import SecurityCard from '../components/profile/SecurityCard';
+import Loader from '../components/Loader';
 
 const ProfilePage = () => {
     const [profile, setProfile] = useState(null);
@@ -36,13 +37,12 @@ const ProfilePage = () => {
     useEffect(() => {
         fetchProfile();
         fetchUserAccommodations();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId, token]);
 
     const fetchUserAccommodations = async () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/${userId}`);
-            setAccommodations(response.data.slice(0, 3)); // Show only latest 3
+            setAccommodations(response.data.slice(0, 3));
         } catch (error) {
             console.error('Failed to fetch accommodations');
         } finally {
@@ -134,15 +134,13 @@ const ProfilePage = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-lime-50 flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-lime-600" />
-            </div>
+            <Loader />
         );
     }
 
     if (!profile) {
         return (
-            <div className="min-h-screen bg-lime-50 flex items-center justify-center">
+            <div className="min-h-screen bg--50 flex items-center justify-center">
                 <p className="text-red-600">Failed to load profile</p>
             </div>
         );
@@ -150,11 +148,11 @@ const ProfilePage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <div className="bg-lime-600">
+            <div className="bg-[#6366F1]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
                     <div className="py-4 flex items-center space-x-6">
                         <div className="h-16 w-16 rounded-full bg-white flex items-center justify-center border-4 border-white">
-                            <User className="h-7 w-7 text-lime-600" />
+                            <User className="h-7 w-7 text-[#6366F1]" />
                         </div>
                         <div className="text-white">
                             <h1 className="text-2xl font-bold">{profile.name}</h1>
@@ -251,7 +249,7 @@ const ProfilePage = () => {
                                         <Button
                                             variant="link"
                                             onClick={() => navigate('/manage-accommodations')}
-                                            className="text-lime-600 hover:text-lime-700"
+                                            className="text-[#6366F1] hover:bg-[#6366F1] hover:text-white"
                                         >
                                             View All
                                         </Button>

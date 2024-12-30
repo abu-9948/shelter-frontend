@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "../components/ui/button";
 import { useAuth } from '../contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import AccommodationList from '../components/AccommodationList';
+import Loader from '../components/Loader';
 
 const ManageAccommodations = () => {
   const [accommodations, setAccommodations] = useState([]);
@@ -46,9 +46,7 @@ const ManageAccommodations = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="h-8 w-8 animate-spin text-lime-600" />
-      </div>
+      <Loader />
     );
   }
 
@@ -59,7 +57,7 @@ const ManageAccommodations = () => {
           <h1 className="text-2xl font-bold text-gray-900">My Accommodations</h1>
           <Button 
             onClick={() => navigate('/post-accommodation')}
-            className="bg-lime-600 hover:bg-lime-700"
+            className="bg-[#6366F1] hover:bg-blue-700"
           >
             Add New
           </Button>

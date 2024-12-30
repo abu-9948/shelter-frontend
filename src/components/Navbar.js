@@ -50,7 +50,7 @@ const Navigation = () => {
           <Button variant="outline">Sign In</Button>
         </Link>
         <Link to="/signup">
-          <Button className="bg-blue-600 hover:bg-blue-700">Sign Up</Button>
+          <Button className="bg-[#6366F1] hover:bg-[#4b4ef7]">Sign Up</Button>
         </Link>
       </>
     );
@@ -60,16 +60,16 @@ const Navigation = () => {
     if (isAuthenticated) {
       return (
         <>
-          <Link 
-            to="/profile" 
-            className="text-gray-700 hover:text-blue-600 px-2 py-1 transition-colors flex items-center gap-2"
+          <Link
+            to="/profile"
+            className="text-gray-700 hover:text-[#6366F1] px-2 py-1 transition-colors flex items-center gap-2"
             onClick={closeMobileMenu}
           >
             <User className="h-4 w-4" />
             Profile
           </Link>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => {
               logout();
               closeMobileMenu();
@@ -88,7 +88,7 @@ const Navigation = () => {
           <Button variant="outline" className="w-full">Sign In</Button>
         </Link>
         <Link to="/signup" onClick={closeMobileMenu}>
-          <Button className="w-full bg-blue-600 hover:bg-blue-700">Sign Up</Button>
+          <Button className="w-full bg-[#6366F1] hover:bg-blue-700">Sign Up</Button>
         </Link>
       </>
     );
@@ -100,20 +100,25 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="text-2xl font-bold text-blue-600">
-              ShelterFinder
+            <Link to="/" className="text-2xl font-bold text-[#6366F1] flex items-center justify-center">
+              <img
+                src="/favicon.svg"
+                alt="Google"
+                className="h-14"
+              />
+              Shelter Finder
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <Link to="/" className="text-gray-700 hover:text-[#6366F1] transition-colors">
               Home
             </Link>
-            <Link to="/accommodations" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <Link to="/accommodations" className="text-gray-700 hover:text-[#6366F1] transition-colors">
               Find Accommodation
             </Link>
-            <Link to="/about" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <Link to="/about" className="text-gray-700 hover:text-[#6366F1] transition-colors">
               About
             </Link>
 
@@ -146,28 +151,28 @@ const Navigation = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden py-4 absolute top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-lg">
             <div className="flex flex-col space-y-4 px-4">
-              <Link 
-                to="/" 
-                className="text-gray-700 hover:text-blue-600 px-2 py-1 transition-colors"
+              <Link
+                to="/"
+                className="text-gray-700 hover:text-[#6366F1] px-2 py-1 transition-colors"
                 onClick={closeMobileMenu}
               >
                 Home
               </Link>
-              <Link 
-                to="/accommodations" 
-                className="text-gray-700 hover:text-blue-600 px-2 py-1 transition-colors"
+              <Link
+                to="/accommodations"
+                className="text-gray-700 hover:text-[#6366F1] px-2 py-1 transition-colors"
                 onClick={closeMobileMenu}
               >
                 Find Accommodation
               </Link>
-              <Link 
-                to="/about" 
-                className="text-gray-700 hover:text-blue-600 px-2 py-1 transition-colors"
+              <Link
+                to="/about"
+                className="text-gray-700 hover:text-[#6366F1] px-2 py-1 transition-colors"
                 onClick={closeMobileMenu}
               >
                 About
               </Link>
-              <Link 
+              <Link
                 to={isAuthenticated ? "/post-accommodation" : "/signin"}
                 onClick={closeMobileMenu}
               >

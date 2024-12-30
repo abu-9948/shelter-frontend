@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Modern abstract shape background -->
+  <path d="M30 100 L100 30 L170 100 Q170 170 100 170 Q30 170 30 100" 
+        fill="#6366F1" 
+        opacity="0.9"/>
+  
+  <!-- Overlapping geometric shelter shape -->
+  <path d="M55 105 L100 60 L145 105 Q145 150 100 150 Q55 150 55 105" 
+        fill="#CDD0F9" 
+        opacity="0.95"/>
+  
+  <!-- Abstract search icon -->
+  <circle cx="115" cy="105" r="15" 
+          fill="none" 
+          stroke="#6366F1" 
+          stroke-width="6"/>
+  <path d="M125 115 L140 130" 
+        stroke="#6366F1" 
+        stroke-width="6" 
+        stroke-linecap="round"/>
+        
+  <!-- Decorative elements -->
+  <circle cx="85" cy="105" r="4" fill="#6366F1"/>
+  <circle cx="100" cy="105" r="4" fill="#6366F1"/>
+  <circle cx="115" cy="105" r="4" fill="#6366F1"/>
+  
+  <!-- Modern abstract lines -->
+  <path d="M60 120 L80 120" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <path d="M65 130 L75 130" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Dynamic accent shape -->
+  <path d="M140 70 Q150 60 160 70" 
+        fill="none" 
+        stroke="#4F46E5" 
+        stroke-width="4" 
+        stroke-linecap="round"/>
+</svg>

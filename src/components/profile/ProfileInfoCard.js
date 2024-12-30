@@ -1,10 +1,9 @@
-// components/profile/ProfileInfoCard.jsx
 import React from 'react';
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Label } from "../ui/label";
-import { Mail, Phone, Shield, Edit, Loader2 } from 'lucide-react';
+import { Mail, Phone, Edit, Loader2, Building2 } from 'lucide-react';
 
 const ProfileInfoCard = ({ 
   profile, 
@@ -54,7 +53,7 @@ const ProfileInfoCard = ({
               <Button
                 onClick={onSave}
                 disabled={isActionLoading}
-                className="bg-lime-600 hover:bg-lime-700"
+                className="bg-[#6366F1] hover:bg-blue-700"
               >
                 {isActionLoading ? (
                   <>
@@ -83,7 +82,7 @@ const ProfileInfoCard = ({
               <span>{profile.phone}</span>
             </div>
             <div className="flex items-center space-x-4 text-sm">
-              <Shield className="h-4 w-4 text-gray-500" />
+              <Building2 className="h-4 w-4 text-gray-500" />
               <span>{profile.role}</span>
             </div>
           </div>

@@ -1,4 +1,3 @@
-// components/AccommodationList.jsx
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -7,6 +6,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
          AlertDialogTitle, AlertDialogTrigger } from "../components/ui/alert-dialog";
 import { Edit2, Trash2, MapPin, DollarSign, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Loader from './Loader';
 
 const AccommodationList = ({ 
   accommodations = [], 
@@ -20,9 +20,7 @@ const AccommodationList = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-40">
-        <Loader2 className="h-8 w-8 animate-spin text-lime-600" />
-      </div>
+      <Loader />
     );
   }
 

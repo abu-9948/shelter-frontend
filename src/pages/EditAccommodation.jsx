@@ -1,4 +1,3 @@
-// pages/EditAccommodation.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,7 +5,8 @@ import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
 import AccommodationForm from '../components/AccommodationForm';
 import { Button } from "../components/ui/button";
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import Loader from '../components/Loader';
 
 const EditAccommodation = () => {
     const [accommodation, setAccommodation] = useState({
@@ -85,9 +85,7 @@ const EditAccommodation = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <Loader2 className="h-8 w-8 animate-spin text-lime-600" />
-            </div>
+            <Loader />
         );
     }
 

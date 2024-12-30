@@ -15,6 +15,7 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import Cookies from 'js-cookie';
 import { Toaster, toast } from 'react-hot-toast';
+import Loader from '../components/Loader';
 
 const SignInPage = () => {
   const [email, setEmail] = useState('');
@@ -136,9 +137,7 @@ const SignInPage = () => {
 
   if (pageLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-lime-50">
-        <Loader2 className="h-8 w-8 animate-spin text-lime-600" />
-      </div>
+      <Loader />
     );
   }
 
