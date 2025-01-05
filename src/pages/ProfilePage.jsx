@@ -239,7 +239,6 @@ const ProfilePage = () => {
                         </Card>
                     </div>
 
-                    {/* Right Column - Future Content */}
                     <div className="col-span-12 lg:col-span-8 space-y-6">
                         <Card>
                             <CardHeader>

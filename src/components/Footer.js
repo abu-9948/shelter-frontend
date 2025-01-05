@@ -21,7 +21,7 @@ const Footer = () => {
                             with quality housing options.
                         </p>
 
-                        <div className="mt-4 pt-2 border-t text-sm text-start text-gray-500">
+                        <div className="mt-4 pt-4 border-t text-sm text-start text-gray-500">
                             <p>© {new Date().getFullYear()} Shelter Finder. All rights reserved.</p>
                         </div>
                     </div>
@@ -52,7 +52,7 @@ const Footer = () => {
                                 <Mail size={20} />
                             </a>
                         </div>
-                        <p className="text-sm text-gray-500">contact@shelterfinder.com</p>
+                        {/* <p className="text-sm text-gray-500"><s>contact@shelterfinder.com</s></p> */}
                     </div>
                 </div>
             </div>

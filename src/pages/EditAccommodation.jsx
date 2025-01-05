@@ -92,7 +92,6 @@ const EditAccommodation = () => {
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto">
-                <div className="mb-6">
                     <Button
                         variant="ghost"
                         onClick={() => navigate('/manage-accommodations')}
@@ -101,7 +100,6 @@ const EditAccommodation = () => {
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Accommodations
                     </Button>
-                </div>
 
                 <AccommodationForm
                     accommodation={accommodation}

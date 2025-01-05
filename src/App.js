@@ -15,6 +15,7 @@ import AccommodationsPage from './pages/AccommodationsPage';
 import AboutPage from './pages/AboutPage';
 import AccommodationDetails from './pages/AccommodationDetails';
 import Footer from './components/Footer';
+import Documentation from './pages/Documentation';
 
 const NotFound = () => {
   useEffect(() => {
@@ -60,7 +61,7 @@ function App() {
                 </RouteWrapper>
               } />
               <Route path="/reset-password/:token" element={
-                <RouteWrapper title="Reset Password" requireAuth>
+                <RouteWrapper title="Reset Password" isPublicOnly>
                     <ResetPasswordPage />
                 </RouteWrapper>
               } />
@@ -92,6 +93,11 @@ function App() {
               <Route path="/accommodations/:id" element={
                 <RouteWrapper title="Accommodation Details" requireAuth>
                     <AccommodationDetails />
+                </RouteWrapper>
+              } />
+              <Route path="/documentation" element={
+                <RouteWrapper title="Documentation">
+                    <Documentation />
                 </RouteWrapper>
               } />
               <Route path="*" element={<NotFound />} />

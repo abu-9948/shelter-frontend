@@ -145,30 +145,35 @@ const AccommodationDetails = () => {
                                 </div>
                             </div>
                         </div>
-
-                        <div>
-                            <h3 className="font-semibold mb-2">Description</h3>
-                            <p className="text-gray-600">{accommodation.description}</p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold mb-2">Address</h3>
-                            <p className="text-gray-600">{accommodation.address}</p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold mb-2">Amenities</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {/* {accommodation.amenities?.split(',').map((amenity, index) => (
-                                    <span
-                                        key={index}
-                                        className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm"
-                                    >
-                                        {amenity.trim()}
-                                    </span>
-                                ))} */}
-                                {accommodation.amenities}
+                        {accommodation.description &&
+                            <div>
+                                <h3 className="font-semibold mb-2">Description</h3>
+                                <p className="text-gray-600">{accommodation.description}</p>
                             </div>
+                        }
+                        {accommodation.address &&
+                            <div>
+                                <h3 className="font-semibold mb-2">Address</h3>
+                                <p className="text-gray-600">{accommodation.address}</p>
+                            </div>
+                        }
+
+                        <div>
+                            {accommodation?.amenities && Object.values(accommodation.amenities)[0]?.toString().trim() && (
+                                <>
+                                    <h3 className="font-semibold mb-2">Amenities</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {Object.values(accommodation.amenities)[0]?.toString().split(',').map((item, index) => (
+                                            <span
+                                                key={index}
+                                                className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm mr-2 mb-2 inline-block"
+                                            >
+                                                {item.trim()}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -178,7 +183,6 @@ const AccommodationDetails = () => {
                         <CardTitle>Reviews</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        {/* Add Review */}
                         {userId && (
                             <div className="space-y-4">
                                 <div className="flex items-center space-x-2">
@@ -218,7 +222,6 @@ const AccommodationDetails = () => {
                             </div>
                         )}
 
-                        {/* Review List */}
                         <div className="space-y-4">
                             {reviews.map((review, index) => (
                                 <Card key={index}>

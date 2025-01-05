@@ -144,7 +144,6 @@ const AccommodationsPage = () => {
                     </div>
                 </div>
 
-                {/* Results Section */}
                 {isLoading ? (
                     <Loader />
                 ) : (
