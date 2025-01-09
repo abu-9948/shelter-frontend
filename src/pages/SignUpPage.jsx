@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Label } from "../components/ui/label";
 import { User, Mail, Lock, Phone, Loader2 } from 'lucide-react';
 import axios from 'axios';
@@ -14,7 +13,6 @@ const SignUpPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [role, setRole] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
@@ -25,7 +23,6 @@ const SignUpPage = () => {
     if (!/\S+@\S+\.\S+/.test(email)) return "Please enter a valid email";
     if (!password || password.length < 6) return "Password must be at least 6 characters";
     if (!phoneNumber.trim()) return "Phone number is required";
-    if (!role) return "Please select your role";
     return null;
   };
 
@@ -43,8 +40,7 @@ const SignUpPage = () => {
         name,
         email: email.toLowerCase(),
         password,
-        phone: phoneNumber,
-        role
+        phone: phoneNumber
       });
 
       toast.success("Account created successfully! Redirecting to login...");
@@ -137,19 +133,6 @@ const SignUpPage = () => {
                     disabled={isLoading}
                   />
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="role">I am a</Label>
-                <Select onValueChange={setRole} value={role} disabled={isLoading}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Seeker">Room Seeker</SelectItem>
-                    <SelectItem value="Owner">Room Owner</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
 
               <Button

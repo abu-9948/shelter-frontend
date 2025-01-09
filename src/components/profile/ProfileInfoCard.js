@@ -81,10 +81,6 @@ const ProfileInfoCard = ({
               <Phone className="h-4 w-4 text-gray-500" />
               <span>{profile.phone}</span>
             </div>
-            <div className="flex items-center space-x-4 text-sm">
-              <Building2 className="h-4 w-4 text-gray-500" />
-              <span>{profile.role}</span>
-            </div>
           </div>
         )}
       </CardContent>

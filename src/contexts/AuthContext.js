@@ -7,6 +7,7 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [userId, setUserId] = useState(null);
+  const [userName, setUserName] = useState(null);
   const [token, setToken] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }) => {
           const decoded = jwtDecode(storedToken);
           if (decoded.exp * 1000 > Date.now()) {
             setUserId(decoded.id);
+            setUserName(decoded.name);
             setToken(storedToken);
             setIsAuthenticated(true);
             axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
@@ -39,6 +41,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const decoded = jwtDecode(newToken);
       setUserId(decoded.id);
+      setUserName(decoded.name);
       setToken(newToken);
       setIsAuthenticated(true);
       axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
@@ -56,6 +59,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       Cookies.remove('token');
       setUserId(null);
+      setUserName(null)
       setToken(null);
       setIsAuthenticated(false);
       delete axios.defaults.headers.common['Authorization'];
@@ -70,7 +74,8 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ 
-      userId, 
+      userId,
+      userName,
       isAuthenticated, 
       token,
       login, 

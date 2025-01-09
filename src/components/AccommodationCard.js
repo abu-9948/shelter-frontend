@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Star, MapPin, Building2, DollarSign } from "lucide-react";
+import { Star, MapPin, Building2, IndianRupee } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 const AccommodationCard = ({ accommodation }) => {
@@ -33,8 +33,8 @@ const AccommodationCard = ({ accommodation }) => {
                         </div>
                     )}
                     <div className="flex items-center text-sm font-semibold bg-blue-50 text-blue-700 px-3 py-1 rounded-full w-fit">
-                        <DollarSign className="mr-1 h-4 w-4" />
-                        ₹{accommodation.price}/month
+                        <IndianRupee className="mr-1 h-4 w-4" />
+                        {accommodation.price}/month
                     </div>
                     <p className="text-sm text-gray-600 line-clamp-2 mt-2">
                         {accommodation.description}

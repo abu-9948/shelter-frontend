@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, MapPin, DollarSign, Star, Building, Phone, Users, Hash, FileText } from 'lucide-react';
+import { Building2, MapPin, IndianRupee, Star, Building, Phone, Users, Hash, FileText } from 'lucide-react';
 import ProgressSteps from './ProgressSteps';
 import FormSection from './FormSection';
 
@@ -19,8 +19,7 @@ const AccommodationForm = ({
       fields: [
         { label: 'Property Name', name: 'name', icon: Building2, required: true, placeholder: 'Enter property name' },
         { label: 'Location', name: 'location', icon: MapPin, required: true, placeholder: 'Enter city or area' },
-        { label: 'Monthly Price', name: 'price', icon: DollarSign, type: 'number', required: true, placeholder: 'Enter monthly rent' },
-        { label: 'Rating', name: 'rating', icon: Star, type: 'number', placeholder: 'Enter rating (0-5)' }
+        { label: 'Monthly Price', name: 'price', icon: IndianRupee, type: 'number', required: true, placeholder: 'Enter monthly rent' }
       ]
     },
     2: {

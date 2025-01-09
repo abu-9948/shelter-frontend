@@ -90,7 +90,7 @@ function App() {
                     <AccommodationsPage />
                 </RouteWrapper>
               } />
-              <Route path="/accommodations/:id" element={
+              <Route path="/accommodations/:accommodation_id" element={
                 <RouteWrapper title="Accommodation Details" requireAuth>
                     <AccommodationDetails />
                 </RouteWrapper>

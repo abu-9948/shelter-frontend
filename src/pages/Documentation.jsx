@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Users, Building, Search, User, Menu, AlertCircle, Mail, Lock, MapPin, DollarSign, Star, Phone, List, FileText, Code, Settings, HelpCircle } from 'lucide-react';
+import { ChevronDown, ChevronRight, Users, Building, Search, User, Menu, AlertCircle, Mail, Lock, MapPin, IndianRupee, Star, Phone, List, FileText, Code, Settings, HelpCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { ScrollArea } from "../components/ui/scroll-area";
@@ -437,7 +437,7 @@ const PostAccommodationSection = () => (
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-gray-500" />
+                  <IndianRupee className="h-4 w-4 text-gray-500" />
                   <span className="text-gray-700">Monthly Rent</span>
                   <span className="text-red-500">*</span>
                 </div>
@@ -600,11 +600,11 @@ const SearchAccommodationSection = () => (
                 <h4 className="text-sm font-medium text-gray-700">Price Range</h4>
                 <ul className="text-sm text-gray-600 space-y-1">
                   <li className="flex items-center gap-2">
-                    <DollarSign className="h-3 w-3" />
+                    <IndianRupee className="h-3 w-3" />
                     Set minimum budget
                   </li>
                   <li className="flex items-center gap-2">
-                    <DollarSign className="h-3 w-3" />
+                    <IndianRupee className="h-3 w-3" />
                     Set maximum budget
                   </li>
                 </ul>

@@ -9,7 +9,7 @@ import {
     AlertDialogTitle, AlertDialogTrigger
 } from "../components/ui/alert-dialog";
 import { useAuth } from '../contexts/AuthContext';
-import { Loader2, User, Building2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
 import axios from 'axios';
 import AccommodationList from '../components/AccommodationList';
 import ProfileInfoCard from '../components/profile/ProfileInfoCard';
@@ -41,7 +41,7 @@ const ProfilePage = () => {
 
     const fetchUserAccommodations = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/${userId}`);
+            const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/by-user/${userId}`);
             setAccommodations(response.data.slice(0, 3));
         } catch (error) {
             console.error('Failed to fetch accommodations');
@@ -152,14 +152,12 @@ const ProfilePage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
                     <div className="py-4 flex items-center space-x-6">
                         <div className="h-16 w-16 rounded-full bg-white flex items-center justify-center border-4 border-white">
-                            <User className="h-7 w-7 text-[#6366F1]" />
+                            <span className="font-semibold text-[#6366F1] text-4xl">
+                                {profile.name?.charAt(0).toUpperCase()}
+                            </span>
                         </div>
                         <div className="text-white">
                             <h1 className="text-2xl font-bold">{profile.name}</h1>
-                            <p className="flex items-center gap-2">
-                                <Building2 className="h-4 w-4" />
-                                {profile.role}
-                            </p>
                         </div>
                     </div>
                 </div>

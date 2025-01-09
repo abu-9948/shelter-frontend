@@ -4,7 +4,7 @@ import { Button } from "../components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
          AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, 
          AlertDialogTitle, AlertDialogTrigger } from "../components/ui/alert-dialog";
-import { Edit2, Trash2, MapPin, DollarSign, Loader2 } from 'lucide-react';
+import { Edit2, Trash2, MapPin, IndianRupee, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Loader from './Loader';
 
@@ -93,7 +93,7 @@ const AccommodationList = ({
                 {accommodation.location}
               </div>
               <div className="flex items-center text-sm text-gray-500">
-                <DollarSign className="mr-2 h-4 w-4" />
+                <IndianRupee className="mr-2 h-4 w-4" />
                 {accommodation.price}/month
               </div>
               <p className="text-sm text-gray-600 line-clamp-2">{accommodation.description}</p>
