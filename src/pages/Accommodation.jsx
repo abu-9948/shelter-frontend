@@ -8,7 +8,7 @@ import { Button } from "../components/ui/button";
 import { ArrowLeft } from 'lucide-react';
 import Loader from '../components/Loader';
 
-const EditAccommodation = () => {
+const Accommodation = () => {
     const [accommodation, setAccommodation] = useState({
         name: '',
         location: '',
@@ -23,23 +23,25 @@ const EditAccommodation = () => {
         address: '',
         description: ''
     });
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     const { userId } = useAuth();
     const { id } = useParams();
-    console.log(id)
     const navigate = useNavigate();
+    const isEditMode = Boolean(id);
 
     useEffect(() => {
-        fetchAccommodation();
-    }, []);
+        if (isEditMode) {
+            fetchAccommodation();
+        }
+    }, [id]);
 
     const fetchAccommodation = async () => {
+        setIsLoading(true);
         try {
             const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/${id}`);
             setAccommodation(response.data);
-            console.log("response: ", response)
         } catch (error) {
             if (error.response?.status === 404) {
                 toast.error('Accommodation not found');
@@ -62,7 +64,7 @@ const EditAccommodation = () => {
         }));
     };
 
-    const handleUpdate = async () => {
+    const handleSubmit = async () => {
         if (!accommodation.name || !accommodation.location || !accommodation.price) {
             toast.error('Please fill in all required fields');
             return;
@@ -70,44 +72,56 @@ const EditAccommodation = () => {
 
         setIsSaving(true);
         try {
-            await axios.put(`${process.env.REACT_APP_ACCOMMODATION}/update/${id}`, {
-                ...accommodation,
-                user_id: userId
-            });
-
-            toast.success('Accommodation updated successfully!');
+            if (isEditMode) {
+                await axios.put(`${process.env.REACT_APP_ACCOMMODATION}/update/${id}`, {
+                    ...accommodation,
+                    user_id: userId
+                });
+                toast.success('Accommodation updated successfully!');
+            } else {
+                const response = await axios.post(`${process.env.REACT_APP_ACCOMMODATION}/add/${userId}`, {
+                    ...accommodation,
+                    price: Number(accommodation.price),
+                    available_spaces: Number(accommodation.available_spaces),
+                });
+                if (response.status === 201) {
+                    toast.success('Accommodation posted successfully!');
+                }
+            }
             navigate('/manage-accommodations');
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to update accommodation');
+            const errorMessage = error.response?.data?.message || error.response?.data?.error ||
+                `Failed to ${isEditMode ? 'update' : 'post'} accommodation`;
+            toast.error(errorMessage);
         } finally {
             setIsSaving(false);
         }
     };
 
     if (isLoading) {
-        return (
-            <Loader />
-        );
+        return <Loader />;
     }
 
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto">
-                <Button
-                    variant="ghost"
-                    onClick={() => navigate('/manage-accommodations')}
-                    className="mb-4"
-                >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Accommodations
-                </Button>
+                {isEditMode && (
+                    <Button
+                        variant="ghost"
+                        onClick={() => navigate('/manage-accommodations')}
+                        className="mb-4"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Accommodations
+                    </Button>
+                )}
 
                 <AccommodationForm
                     accommodation={accommodation}
                     onChange={handleChange}
-                    onSubmit={handleUpdate}
+                    onSubmit={handleSubmit}
                     isLoading={isSaving}
-                    isEdit={true}
+                    isEdit={isEditMode}
                     onCancel={() => navigate('/manage-accommodations')}
                 />
             </div>
@@ -116,4 +130,4 @@ const EditAccommodation = () => {
     );
 };
 
-export default EditAccommodation;
+export default Accommodation;

@@ -23,7 +23,7 @@ const ManageAccommodations = () => {
 
   const fetchAccommodations = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/${userId}`);
+      const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/by-user/${userId}`);
       setAccommodations(response.data);
     } catch (error) {
       toast.error('Failed to fetch accommodations');

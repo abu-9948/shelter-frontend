@@ -1,55 +1,62 @@
 import React, { useState, useEffect } from 'react';
-import { Input } from "../components/ui/input";
-import { Button } from "../components/ui/button";
-import { Search, MapPin, Building2, FilterX, Filter, Users } from "lucide-react";
 import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
 import Loader from '../components/Loader';
 import AccommodationCard from '../components/AccommodationCard';
+import FilterSidebar from '../components/FilterSidebar';
+import { useAuth } from '../contexts/AuthContext';
+import { Search } from 'lucide-react';
 
 const AccommodationsPage = () => {
     const [accommodations, setAccommodations] = useState([]);
+    const [filteredAccommodations, setFilteredAccommodations] = useState([]);
+    const [favorites, setFavorites] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isFiltering, setIsFiltering] = useState(false);
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
     const [filters, setFilters] = useState({
         search: '',
         location: '',
-        companyName: ''
+        companyName: '',
+        minPrice: null,
+        maxPrice: null,
+        rating: 0,
+        showFavorites: false
     });
+    const { userId } = useAuth();
 
     useEffect(() => {
         fetchAccommodations();
-    }, []);
+        if (userId) {
+            fetchUserFavorites();
+        }
+    }, [userId]);
 
-    const fetchAccommodations = async (withFilters = false) => {
-        setIsLoading(true);
+    useEffect(() => {
+        applyFilters();
+    }, [filters, accommodations, favorites]);
+
+    const fetchUserFavorites = async () => {
         try {
-            let url = `${process.env.REACT_APP_ACCOMMODATION}/search?`;
-            const queryParams = new URLSearchParams();
-
-            if (withFilters) {
-                if (filters.search) queryParams.append('name', filters.search);
-                if (filters.location) queryParams.append('location', filters.location);
-                if (filters.companyName) queryParams.append('companyName', filters.companyName);
-            }
-
-            const response = await axios.get(
-                queryParams.toString() ? `${url}${queryParams}` : `${process.env.REACT_APP_ACCOMMODATION}/get`
-            );
-
-            setAccommodations(response.data);
-            if (withFilters) {
-                toast.success('Filters applied successfully');
-            }
+            const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/favs/${userId}`);
+            setFavorites(response.data);
         } catch (error) {
-            if (error.response?.status === 404) {
-                setAccommodations([]);
-            } else {
-                toast.error('Failed to fetch accommodations');
-            }
+            console.error('Failed to fetch favorites');
         } finally {
             setIsLoading(false);
-            setIsFiltering(false);
+        }
+    };
+
+    const fetchAccommodations = async () => {
+        setIsLoading(true);
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/get`);
+            const reversedAccommodations = [...response.data].reverse();
+            setAccommodations(reversedAccommodations);
+            setFilteredAccommodations(reversedAccommodations);
+        } catch (error) {
+            toast.error('Failed to fetch accommodations');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -65,14 +72,82 @@ const AccommodationsPage = () => {
         setFilters({
             search: '',
             location: '',
-            companyName: ''
+            companyName: '',
+            minPrice: null,
+            maxPrice: null,
+            rating: 0,
+            showFavorites: false
         });
-        fetchAccommodations();
+        setFilteredAccommodations(accommodations);
     };
 
     const applyFilters = () => {
-        setIsFiltering(true);
-        fetchAccommodations(true);
+        let filtered = [...accommodations];
+
+        // Text search filters
+        if (filters.search) {
+            filtered = filtered.filter(acc => 
+                acc.name.toLowerCase().includes(filters.search.toLowerCase())
+            );
+        }
+        if (filters.location) {
+            filtered = filtered.filter(acc => 
+                acc.location.toLowerCase().includes(filters.location.toLowerCase())
+            );
+        }
+        if (filters.companyName) {
+            filtered = filtered.filter(acc => 
+                acc.companyName.toLowerCase().includes(filters?.companyName?.toLowerCase())
+            );
+        }
+
+        // Price range filter
+        if (filters.minPrice !== null) {
+            filtered = filtered.filter(acc => acc.price >= filters.minPrice);
+        }
+        if (filters.maxPrice !== null) {
+            filtered = filtered.filter(acc => acc.price <= filters.maxPrice);
+        }
+
+        // Rating filter
+        if (filters.rating > 0) {
+            filtered = filtered.filter(acc => acc.rating >= filters.rating);
+        }
+
+        // Favorites filter
+        if (filters.showFavorites) {
+            filtered = filtered.filter(acc => 
+                favorites.some(fav => fav._id === acc._id)
+            );
+        }
+
+        setFilteredAccommodations(filtered);
+    };
+
+    const handleToggleFavorite = async (accommodationId, newFavoriteState) => {
+        if (!userId) {
+            toast.error('Please login to add favorites');
+            return;
+        }
+
+        try {
+            if (newFavoriteState) {
+                await axios.post(`${process.env.REACT_APP_ACCOMMODATION}/favs/add/${userId}`, 
+                    {accommodationId}
+                );
+                setFavorites(prev => [...prev, {_id: accommodationId}]);
+                toast.success('Added to favorites');
+            } else {
+                await axios.delete(`${process.env.REACT_APP_ACCOMMODATION}/favs/remove/${userId}`, 
+                    { data: { accommodationId } }
+                );
+                setFavorites(prev => prev.filter(fav => fav._id !== accommodationId));
+                toast.success('Removed from favorites');
+            }
+        } catch (error) {
+            toast.error('Failed to update favorites');
+            console.error('Error:', error);
+        }
     };
 
     const NoAccommodationsFound = () => (
@@ -86,89 +161,45 @@ const AccommodationsPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-                <div className="bg-white rounded-lg shadow-sm p-4 mb-8">
-                    <div className="flex flex-wrap items-center gap-4">
-                        <div className="relative flex-1 min-w-[200px]">
-                            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                            <Input
-                                name="search"
-                                placeholder="Search accommodations..."
-                                value={filters.search}
-                                onChange={handleFilterChange}
-                                className="pl-10"
-                            />
-                        </div>
-                        <div className="relative flex-1 min-w-[200px]">
-                            <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                            <Input
-                                name="location"
-                                placeholder="Location"
-                                value={filters.location}
-                                onChange={handleFilterChange}
-                                className="pl-10"
-                            />
-                        </div>
-                        <div className="relative flex-1 min-w-[200px]">
-                            <Building2 className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                            <Input
-                                name="companyName"
-                                placeholder="Company"
-                                value={filters.companyName}
-                                onChange={handleFilterChange}
-                                className="pl-10"
-                            />
-                        </div>
-                        <div className="flex gap-2">
-                            {(filters.search || filters.location || filters.companyName) && (
-                                <Button
-                                    variant="outline"
-                                    onClick={clearFilters}
-                                    className="whitespace-nowrap"
-                                    disabled={isFiltering}
-                                >
-                                    <FilterX className="h-4 w-4 mr-2" />
-                                    Clear
-                                </Button>
-                            )}
-                            <Button
-                                onClick={applyFilters}
-                                className="bg-[#6366F1] hover:bg-[#5558D9] text-white whitespace-nowrap"
-                                disabled={isFiltering}
-                            >
-                                <Filter className="h-4 w-4 mr-2" />
-                                {isFiltering ? 'Applying...' : 'Apply'}
-                            </Button>
-                        </div>
+        <div className="min-h-screen bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="py-8 flex gap-8 relative">
+                    <div className="hidden lg:block h-screen sticky top-24">
+                        <FilterSidebar
+                            filters={filters}
+                            setFilters={setFilters}
+                            accommodations={accommodations}
+                            onFilterChange={handleFilterChange}
+                            onClearFilters={clearFilters}
+                            showMobileFilters={showMobileFilters}
+                            setShowMobileFilters={setShowMobileFilters}
+                            favorites={favorites}
+                            isLoading={isLoading}
+                        />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                        {isLoading ? (
+                            <Loader />
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {filteredAccommodations.length > 0 ? (
+                                    filteredAccommodations.map((accommodation) => (
+                                        <AccommodationCard
+                                            key={accommodation._id}
+                                            accommodation={accommodation}
+                                            userId={userId}
+                                            isFavorite={favorites.some(fav => fav._id === accommodation._id)}
+                                            onToggleFavorite={handleToggleFavorite}
+                                        />
+                                    ))
+                                ) : (
+                                    <NoAccommodationsFound />
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
-
-                {isLoading ? (
-                    <Loader />
-                ) : (
-                    <>
-                        <div className="mb-4 flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-gray-600">
-                                <Users className="h-4 w-4" />
-                                <span>{accommodations.length} accommodations found</span>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {accommodations.length > 0 ? (
-                                accommodations.map((accommodation) => (
-                                    <AccommodationCard 
-                                        key={accommodation._id} 
-                                        accommodation={accommodation} 
-                                    />
-                                ))
-                            ) : (
-                                <NoAccommodationsFound />
-                            )}
-                        </div>
-                    </>
-                )}
             </div>
             <Toaster position="top-center" />
         </div>

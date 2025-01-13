@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Toaster, toast } from 'react-hot-toast';
-import {
-    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-    AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
-    AlertDialogTitle, AlertDialogTrigger
-} from "../components/ui/alert-dialog";
 import { useAuth } from '../contexts/AuthContext';
-import { Loader2, User } from 'lucide-react';
 import axios from 'axios';
-import AccommodationList from '../components/AccommodationList';
 import ProfileInfoCard from '../components/profile/ProfileInfoCard';
 import SecurityCard from '../components/profile/SecurityCard';
 import Loader from '../components/Loader';
+import PropertiesSection from '../components/profile/PropertiesSection';
+import ProfileHeader from '../components/profile/ProfileHeader';
+import AccountDeleteCard from '../components/profile/AccountDeleteCard';
 
 const ProfilePage = () => {
     const [profile, setProfile] = useState(null);
@@ -29,7 +23,7 @@ const ProfilePage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isActionLoading, setIsActionLoading] = useState(false);
     const [accommodations, setAccommodations] = useState([]);
-
+    const [favorites, setFavorites] = useState([]);
 
     const navigate = useNavigate();
     const { userId, logout, token } = useAuth();
@@ -37,14 +31,24 @@ const ProfilePage = () => {
     useEffect(() => {
         fetchProfile();
         fetchUserAccommodations();
+        fetchUserFavorites();
     }, [userId, token]);
 
     const fetchUserAccommodations = async () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/by-user/${userId}`);
-            setAccommodations(response.data.slice(0, 3));
+            setAccommodations(response.data);
         } catch (error) {
             console.error('Failed to fetch accommodations');
+        }
+    };
+
+    const fetchUserFavorites = async () => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/favs/${userId}`);
+            setFavorites(response.data);
+        } catch (error) {
+            console.error('Failed to fetch favorites');
         } finally {
             setIsLoading(false);
         }
@@ -132,36 +136,41 @@ const ProfilePage = () => {
         }
     };
 
+
     if (isLoading) {
-        return (
-            <Loader />
-        );
+        return <Loader />;
     }
 
     if (!profile) {
         return (
-            <div className="min-h-screen bg--50 flex items-center justify-center">
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <p className="text-red-600">Failed to load profile</p>
             </div>
         );
     }
 
+    const handleToggleFavorite = async (accommodationId, isFavorite) => {
+        try {
+            if (isFavorite) {
+                await axios.delete(`${process.env.REACT_APP_ACCOMMODATION}/favs/remove`, {
+                    data: { userId, accommodationId }
+                });
+            } else {
+                await axios.post(`${process.env.REACT_APP_ACCOMMODATION}/favs/add`, {
+                    userId,
+                    accommodationId
+                });
+            }
+            fetchUserFavorites();
+            toast.success(isFavorite ? 'Removed from favorites' : 'Added to favorites');
+        } catch (error) {
+            toast.error('Failed to update favorites');
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
-            <div className="bg-[#6366F1]">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
-                    <div className="py-4 flex items-center space-x-6">
-                        <div className="h-16 w-16 rounded-full bg-white flex items-center justify-center border-4 border-white">
-                            <span className="font-semibold text-[#6366F1] text-4xl">
-                                {profile.name?.charAt(0).toUpperCase()}
-                            </span>
-                        </div>
-                        <div className="text-white">
-                            <h1 className="text-2xl font-bold">{profile.name}</h1>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <ProfileHeader profile={profile} />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-12 gap-6">
@@ -196,72 +205,20 @@ const ProfilePage = () => {
                             }}
                             onStartPasswordChange={() => setIsChangingPassword(true)}
                         />
-
-                        <Card className="border-red-200">
-                            <CardHeader>
-                                <CardTitle className="text-xl font-medium text-red-600">Delete My Account</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="destructive" className="w-full" disabled={isActionLoading}>
-                                            Delete Account
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Delete Account</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                This will permanently delete your account and remove all your data.
-                                                This action cannot be undone.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel disabled={isActionLoading}>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction
-                                                onClick={handleDeleteAccount}
-                                                className="bg-red-600 hover:bg-red-700"
-                                                disabled={isActionLoading}
-                                            >
-                                                {isActionLoading ? (
-                                                    <>
-                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        Deleting...
-                                                    </>
-                                                ) : 'Delete Account'}
-                                            </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </CardContent>
-                        </Card>
+                        <AccountDeleteCard
+                            handleDeleteAccount={handleDeleteAccount}
+                            isActionLoading={isActionLoading}
+                        />
                     </div>
 
                     <div className="col-span-12 lg:col-span-8 space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <div className="flex justify-between items-center">
-                                    <CardTitle className="text-xl font-medium">Your Accommodations</CardTitle>
-                                    {accommodations.length > 0 && (
-                                        <Button
-                                            variant="link"
-                                            onClick={() => navigate('/manage-accommodations')}
-                                            className="text-[#6366F1] hover:bg-[#6366F1] hover:text-white"
-                                        >
-                                            View All
-                                        </Button>
-                                    )}
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <AccommodationList
-                                    accommodations={accommodations}
-                                    isLoading={isLoading}
-                                    showActions={false}
-                                    gridCols="grid-cols-1 gap-4"
-                                />
-                            </CardContent>
-                        </Card>
+                        <PropertiesSection
+                            accommodations={accommodations}
+                            favorites={favorites}
+                            isLoading={isLoading}
+                            userId={userId}
+                            onToggleFavorite={handleToggleFavorite}
+                        />
                     </div>
                 </div>
             </div>

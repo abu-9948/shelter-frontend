@@ -17,14 +17,13 @@ import {
 } from 'lucide-react';
 import Loader from '../components/Loader';
 import AccommodationReviews from '../components/review/AccommodationReviews';
+import ImageGallery from '../components/ImageGallery';
 
 const AccommodationDetails = () => {
     const { accommodation_id } = useParams();
-    console.log("accommodation_id: ", accommodation_id)
     const navigate = useNavigate();
     const { userId, userName } = useAuth();
-    console.log("userName: ", userName)
-
+    
     const [accommodation, setAccommodation] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -45,9 +44,7 @@ const AccommodationDetails = () => {
     };
 
     if (isLoading) {
-        return (
-            <Loader />
-        );
+        return <Loader />;
     }
 
     if (!accommodation) {
@@ -70,7 +67,12 @@ const AccommodationDetails = () => {
                     Back to Accommodations
                 </Button>
             </div>
+            
             <div className="max-w-4xl mx-auto space-y-8">
+                {/* Image Gallery */}
+                <ImageGallery images={accommodation.images} />
+
+                {/* Accommodation Details Card */}
                 <Card>
                     <CardHeader>
                         <div className="flex justify-between items-start">
@@ -83,18 +85,18 @@ const AccommodationDetails = () => {
                             </div>
                             <div className="flex items-center bg-violet-100 px-3 py-1 rounded-full">
                                 <Star className="h-5 w-5 text-[#6366F1] mr-1" fill="currentColor" />
-                                <span className="font-semibold text-[#6366F1]">{accommodation.rating}/5</span>
                             </div>
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-3">
-                                {accommodation.companyName && <div className="flex items-center">
-                                    <Building2 className="h-5 w-5 text-gray-400 mr-2" />
-                                    <span className="text-gray-600">{accommodation.companyName}</span>
-                                </div>}
-
+                                {accommodation.companyName && (
+                                    <div className="flex items-center">
+                                        <Building2 className="h-5 w-5 text-gray-400 mr-2" />
+                                        <span className="text-gray-600">{accommodation.companyName}</span>
+                                    </div>
+                                )}
                                 <div className="flex items-center">
                                     <IndianRupee className="h-5 w-5 text-gray-400 mr-2" />
                                     <span className="text-gray-600">{accommodation.price}/month</span>
@@ -115,18 +117,20 @@ const AccommodationDetails = () => {
                                 </div>
                             </div>
                         </div>
-                        {accommodation.description &&
+                        
+                        {accommodation.description && (
                             <div>
                                 <h3 className="font-semibold mb-2">Description</h3>
                                 <p className="text-gray-600">{accommodation.description}</p>
                             </div>
-                        }
-                        {accommodation.address &&
+                        )}
+                        
+                        {accommodation.address && (
                             <div>
                                 <h3 className="font-semibold mb-2">Address</h3>
                                 <p className="text-gray-600">{accommodation.address}</p>
                             </div>
-                        }
+                        )}
 
                         <div>
                             {accommodation?.amenities && Object.values(accommodation.amenities)[0]?.toString().trim() && (

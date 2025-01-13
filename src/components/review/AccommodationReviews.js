@@ -118,7 +118,6 @@ const AccommodationReviews = ({ accommodationId, userId, userName, onReviewSubmi
 
                     {otherReviews.length > 0 && (
                         <div className="space-y-4 border-b pb-6">
-                            <h3 className="text-lg font-semibold">Other Reviews</h3>
                             {otherReviews.map((review, index) => (
                                 <ReviewCard
                                     key={index}

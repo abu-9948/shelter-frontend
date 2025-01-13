@@ -443,14 +443,6 @@ const PostAccommodationSection = () => (
                 </div>
                 <span className="text-sm text-gray-500">Base rent amount</span>
               </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Star className="h-4 w-4 text-gray-500" />
-                  <span className="text-gray-700">Rating</span>
-                </div>
-                <span className="text-sm text-gray-500">Property rating (optional)</span>
-              </div>
             </div>
           </div>
           
