@@ -21,6 +21,24 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+
+const locations = [
+  { value: 'bangalore', label: 'Bangalore' },
+  { value: 'chennai', label: 'Chennai' },
+  { value: 'delhi', label: 'Delhi' },
+  { value: 'hyderabad', label: 'Hyderabad' },
+  { value: 'kolkata', label: 'Kolkata' },
+  { value: 'mumbai', label: 'Mumbai' },
+  { value: 'pune', label: 'Pune' },
+  { value: 'visakhapatnam', label: 'Visakhapatnam' },
+];
 
 const FilterSidebar = ({
   filters,
@@ -36,9 +54,40 @@ const FilterSidebar = ({
   const maxPrice = Math.max(...accommodations.map(acc => acc.price), 0);
   const minPrice = Math.min(...accommodations.map(acc => acc.price), 0);
 
+  const handleLocationChange = (value) => {
+    onFilterChange({
+      target: {
+        name: 'location',
+        value: value
+      }
+    });
+  };
+
   const FilterContent = () => (
     <div className="space-y-6">
-      {/* Search Section */}
+      {/* Location Dropdown */}
+      <div className="space-y-2">
+        <Label>Location</Label>
+        <Select
+          value={filters.location}
+          onValueChange={handleLocationChange}
+        >
+          <SelectTrigger className="w-full">
+            <div className="flex items-center">
+              <MapPin className="h-4 w-4 text-gray-400 mr-2" />
+              <SelectValue placeholder="Select location" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            {locations.map((location) => (
+              <SelectItem key={location.value} value={location.value}>
+                {location.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="space-y-4">
         <div className="space-y-2">
           <Label>Search</Label>
@@ -48,20 +97,6 @@ const FilterSidebar = ({
               name="search"
               placeholder="Search accommodations..."
               value={filters.search}
-              onChange={onFilterChange}
-              className="pl-10"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Location</Label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              name="location"
-              placeholder="Location"
-              value={filters.location}
               onChange={onFilterChange}
               className="pl-10"
             />

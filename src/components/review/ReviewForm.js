@@ -3,7 +3,13 @@ import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { Star, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "../ui/select";
 
 const ReviewForm = ({
     onSubmit,
@@ -24,8 +30,29 @@ const ReviewForm = ({
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
         if (!formData.review.trim()) {
             toast.error('Please write a review');
+            return;
+        }
+        if (formData.rating === 0) {
+            toast.error('Please select an overall rating');
+            return;
+        }
+        if (formData.maintenanceRating === 0) {
+            toast.error('Please rate the maintenance');
+            return;
+        }
+        if (formData.amenitiesRating === 0) {
+            toast.error('Please rate the amenities');
+            return;
+        }
+        if (formData.valueForMoneyRating === 0) {
+            toast.error('Please rate the value for money');
+            return;
+        }
+        if (!formData.stayDuration) {
+            toast.error('Please select your stay duration');
             return;
         }
 
@@ -102,17 +129,20 @@ const ReviewForm = ({
 
             <div>
                 <label className="text-sm text-gray-600 block mb-2">Stay Duration:</label>
-                <select
+                <Select
                     value={formData.stayDuration}
-                    onChange={(e) => setFormData(prev => ({ ...prev, stayDuration: e.target.value }))}
-                    className="w-full p-2 border rounded-md bg-white"
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, stayDuration: value }))}
                 >
-                    <option value="">Select duration</option>
-                    <option value="Less than 6 months">Less than 6 months</option>
-                    <option value="6-12 months">6-12 months</option>
-                    <option value="1-2 years">1-2 years</option>
-                    <option value="More than 2 years">More than 2 years</option>
-                </select>
+                    <SelectTrigger className="w-full bg-white">
+                        <SelectValue placeholder="How long have you stayed?" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Less than 6 months">Less than 6 months</SelectItem>
+                        <SelectItem value="6-12 months">6-12 months</SelectItem>
+                        <SelectItem value="1-2 years">1-2 years</SelectItem>
+                        <SelectItem value="More than 2 years">More than 2 years</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
 
             <Textarea

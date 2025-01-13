@@ -67,7 +67,17 @@ const AccommodationForm = ({
           name: 'location', 
           icon: MapPin, 
           required: true, 
-          placeholder: 'Enter city or area' 
+          isSelect: true,
+          options: [
+            { value: 'bangalore', label: 'Bangalore' },
+            { value: 'chennai', label: 'Chennai' },
+            { value: 'delhi', label: 'Delhi' },
+            { value: 'hyderabad', label: 'Hyderabad' },
+            { value: 'kolkata', label: 'Kolkata' },
+            { value: 'mumbai', label: 'Mumbai' },
+            { value: 'pune', label: 'Pune' },
+            { value: 'visakhapatnam', label: 'Visakhapatnam' },
+          ]
         },
         { 
           label: 'Monthly Price', 

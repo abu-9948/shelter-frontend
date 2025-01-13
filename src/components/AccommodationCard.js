@@ -143,9 +143,9 @@ const AccommodationCard = ({ accommodation, userId, isFavorite = false, onToggle
                     <CardTitle className="text-xl font-medium truncate">
                         {accommodation.name}
                     </CardTitle>
-                    <div className="flex items-center px-2 py-1 bg-yellow-50 rounded-full">
+                    {/* <div className="flex items-center px-2 py-1 bg-yellow-50 rounded-full">
                         <Star className="h-4 w-4 text-yellow-400 mr-1" fill="currentColor" />
-                    </div>
+                    </div> */}
                 </CardHeader>
 
                 <CardContent>
