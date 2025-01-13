@@ -1,3 +1,4 @@
+// AccommodationsPage.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
@@ -22,6 +23,13 @@ const AccommodationsPage = () => {
         rating: 0,
         showFavorites: false
     });
+    // New state for temporary input values
+    const [tempInputs, setTempInputs] = useState({
+        search: '',
+        companyName: '',
+        minPrice: null,
+        maxPrice: null
+    });
     const { userId } = useAuth();
 
     useEffect(() => {
@@ -32,8 +40,18 @@ const AccommodationsPage = () => {
     }, [userId]);
 
     useEffect(() => {
-        applyFilters();
-    }, [filters, accommodations, favorites]);
+        // Only apply filters for non-input changes
+        if (!isInputValueChanged()) {
+            applyFilters();
+        }
+    }, [filters.location, filters.rating, filters.showFavorites, accommodations, favorites]);
+
+    const isInputValueChanged = () => {
+        return filters.search !== tempInputs.search ||
+               filters.companyName !== tempInputs.companyName ||
+               filters.minPrice !== tempInputs.minPrice ||
+               filters.maxPrice !== tempInputs.maxPrice;
+    };
 
     const fetchUserFavorites = async () => {
         try {
@@ -68,8 +86,23 @@ const AccommodationsPage = () => {
         }));
     };
 
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setTempInputs(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handlePriceInputChange = (name, value) => {
+        setTempInputs(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
     const clearFilters = () => {
-        setFilters({
+        const clearedFilters = {
             search: '',
             location: '',
             companyName: '',
@@ -77,6 +110,13 @@ const AccommodationsPage = () => {
             maxPrice: null,
             rating: 0,
             showFavorites: false
+        };
+        setFilters(clearedFilters);
+        setTempInputs({
+            search: '',
+            companyName: '',
+            minPrice: null,
+            maxPrice: null
         });
         setFilteredAccommodations(accommodations);
     };
@@ -87,17 +127,17 @@ const AccommodationsPage = () => {
         // Text search filters
         if (filters.search) {
             filtered = filtered.filter(acc => 
-                acc.name.toLowerCase().includes(filters.search.toLowerCase())
+                acc.name?.toLowerCase().includes(filters.search?.toLowerCase())
             );
         }
         if (filters.location) {
             filtered = filtered.filter(acc => 
-                acc.location.toLowerCase().includes(filters.location.toLowerCase())
+                acc.location?.toLowerCase().includes(filters.location?.toLowerCase())
             );
         }
         if (filters.companyName) {
             filtered = filtered.filter(acc => 
-                acc.companyName.toLowerCase().includes(filters?.companyName?.toLowerCase())
+                acc.companyName?.toLowerCase().includes(filters.companyName?.toLowerCase())
             );
         }
 
@@ -123,7 +163,54 @@ const AccommodationsPage = () => {
 
         setFilteredAccommodations(filtered);
     };
+    const applyAllFilters = () => {
+        setIsLoading(true);
+        setFilters(prev => ({
+            ...prev,
+            search: tempInputs.search,
+            companyName: tempInputs.companyName,
+            minPrice: tempInputs.minPrice,
+            maxPrice: tempInputs.maxPrice
+        }));
+        
+        // Immediately apply filters instead of waiting for useEffect
+        let filtered = [...accommodations];
+    
+        if (tempInputs.search) {
+            filtered = filtered.filter(acc => 
+                acc.name?.toLowerCase().includes(tempInputs.search?.toLowerCase())
+            );
+        }
+        if (filters.location) {
+            filtered = filtered.filter(acc => 
+                acc.location?.toLowerCase().includes(filters.location?.toLowerCase())
+            );
+        }
+        if (tempInputs.companyName) {
+            filtered = filtered.filter(acc => 
+                acc.companyName?.toLowerCase().includes(tempInputs.companyName?.toLowerCase())
+            );
+        }
+        if (tempInputs.minPrice !== null) {
+            filtered = filtered.filter(acc => acc.price >= tempInputs.minPrice);
+        }
+        if (tempInputs.maxPrice !== null) {
+            filtered = filtered.filter(acc => acc.price <= tempInputs.maxPrice);
+        }
+        if (filters.rating > 0) {
+            filtered = filtered.filter(acc => acc.rating >= filters.rating);
+        }
+        if (filters.showFavorites) {
+            filtered = filtered.filter(acc => 
+                favorites.some(fav => fav._id === acc._id)
+            );
+        }
+    
+        setFilteredAccommodations(filtered);
+        setIsLoading(false);
+    };
 
+    // Rest of the component remains the same...
     const handleToggleFavorite = async (accommodationId, newFavoriteState) => {
         if (!userId) {
             toast.error('Please login to add favorites');
@@ -167,13 +254,16 @@ const AccommodationsPage = () => {
                     <div className="hidden lg:block h-screen sticky top-24">
                         <FilterSidebar
                             filters={filters}
+                            tempInputs={tempInputs}
                             setFilters={setFilters}
                             accommodations={accommodations}
                             onFilterChange={handleFilterChange}
+                            onInputChange={handleInputChange}
+                            onPriceInputChange={handlePriceInputChange}
+                            onApplyFilters={applyAllFilters}
                             onClearFilters={clearFilters}
                             showMobileFilters={showMobileFilters}
                             setShowMobileFilters={setShowMobileFilters}
-                            favorites={favorites}
                             isLoading={isLoading}
                         />
                     </div>
@@ -183,13 +273,13 @@ const AccommodationsPage = () => {
                             <Loader />
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {filteredAccommodations.length > 0 ? (
+                                    {(filteredAccommodations || []).length > 0 ? (
                                     filteredAccommodations.map((accommodation) => (
                                         <AccommodationCard
-                                            key={accommodation._id}
+                                            key={accommodation?._id}
                                             accommodation={accommodation}
                                             userId={userId}
-                                            isFavorite={favorites.some(fav => fav._id === accommodation._id)}
+                                            isFavorite={favorites?.some(fav => fav?._id === accommodation?._id)}
                                             onToggleFavorite={handleToggleFavorite}
                                         />
                                     ))
