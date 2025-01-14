@@ -18,7 +18,6 @@ const FilterSidebar = ({
   accommodations,
   onFilterChange,
   onInputChange,
-  onPriceInputChange,
   onApplyFilters,
   onClearFilters,
   showMobileFilters,
@@ -35,7 +34,6 @@ const FilterSidebar = ({
             accommodations={accommodations}
             onFilterChange={onFilterChange}
             onInputChange={onInputChange}
-            onPriceInputChange={onPriceInputChange}
             onApplyFilters={onApplyFilters}
             onClearFilters={onClearFilters}
             isLoading={isLoading}
@@ -64,7 +62,6 @@ const FilterSidebar = ({
               accommodations={accommodations}
               onFilterChange={onFilterChange}
               onInputChange={onInputChange}
-              onPriceInputChange={onPriceInputChange}
               onApplyFilters={onApplyFilters}
               onClearFilters={onClearFilters}
               isLoading={isLoading}

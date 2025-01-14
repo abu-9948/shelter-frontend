@@ -1,10 +1,10 @@
-// AccommodationsPage.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
 import Loader from '../components/Loader';
 import AccommodationCard from '../components/AccommodationCard';
 import FilterSidebar from '../components/FilterSidebar';
+import PaginatedAccommodations from '../components/PaginatedAccommodations';
 import { useAuth } from '../contexts/AuthContext';
 import { Search } from 'lucide-react';
 
@@ -21,14 +21,13 @@ const AccommodationsPage = () => {
         minPrice: null,
         maxPrice: null,
         rating: 0,
-        showFavorites: false
+        showFavorites: false,
+        sortPrice: null, 
     });
-    // New state for temporary input values
+    // State for temporary input values
     const [tempInputs, setTempInputs] = useState({
         search: '',
         companyName: '',
-        minPrice: null,
-        maxPrice: null
     });
     const { userId } = useAuth();
 
@@ -44,13 +43,11 @@ const AccommodationsPage = () => {
         if (!isInputValueChanged()) {
             applyFilters();
         }
-    }, [filters.location, filters.rating, filters.showFavorites, accommodations, favorites]);
+    }, [filters.location, filters.sortPrice, filters.maxPrice, filters.maxPrice, filters.rating, filters.showFavorites, accommodations, favorites]);
 
     const isInputValueChanged = () => {
         return filters.search !== tempInputs.search ||
-               filters.companyName !== tempInputs.companyName ||
-               filters.minPrice !== tempInputs.minPrice ||
-               filters.maxPrice !== tempInputs.maxPrice;
+               filters.companyName !== tempInputs.companyName
     };
 
     const fetchUserFavorites = async () => {
@@ -94,13 +91,6 @@ const AccommodationsPage = () => {
         }));
     };
 
-    const handlePriceInputChange = (name, value) => {
-        setTempInputs(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
     const clearFilters = () => {
         const clearedFilters = {
             search: '',
@@ -109,7 +99,8 @@ const AccommodationsPage = () => {
             minPrice: null,
             maxPrice: null,
             rating: 0,
-            showFavorites: false
+            showFavorites: false,
+            sortPrice: null, 
         };
         setFilters(clearedFilters);
         setTempInputs({
@@ -161,8 +152,20 @@ const AccommodationsPage = () => {
             );
         }
 
+        if (filters.sortPrice) {
+            filtered.sort((a, b) => {
+                if (filters.sortPrice === 'desc') {
+                    return b.price - a.price;
+                } else if (filters.sortPrice === 'asc') {
+                    return a.price - b.price;
+                }
+                return 0;
+            });
+        }
+
         setFilteredAccommodations(filtered);
     };
+
     const applyAllFilters = () => {
         setIsLoading(true);
         setFilters(prev => ({
@@ -173,7 +176,6 @@ const AccommodationsPage = () => {
             maxPrice: tempInputs.maxPrice
         }));
         
-        // Immediately apply filters instead of waiting for useEffect
         let filtered = [...accommodations];
     
         if (tempInputs.search) {
@@ -205,12 +207,22 @@ const AccommodationsPage = () => {
                 favorites.some(fav => fav._id === acc._id)
             );
         }
+
+        if (filters.sortPrice) {
+            filtered.sort((a, b) => {
+                if (filters.sortPrice === 'desc') {
+                    return b.price - a.price;
+                } else if (filters.sortPrice === 'asc') {
+                    return a.price - b.price;
+                }
+                return 0;
+            });
+        }
     
         setFilteredAccommodations(filtered);
         setIsLoading(false);
     };
 
-    // Rest of the component remains the same...
     const handleToggleFavorite = async (accommodationId, newFavoriteState) => {
         if (!userId) {
             toast.error('Please login to add favorites');
@@ -259,7 +271,6 @@ const AccommodationsPage = () => {
                             accommodations={accommodations}
                             onFilterChange={handleFilterChange}
                             onInputChange={handleInputChange}
-                            onPriceInputChange={handlePriceInputChange}
                             onApplyFilters={applyAllFilters}
                             onClearFilters={clearFilters}
                             showMobileFilters={showMobileFilters}
@@ -272,21 +283,14 @@ const AccommodationsPage = () => {
                         {isLoading ? (
                             <Loader />
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {(filteredAccommodations || []).length > 0 ? (
-                                    filteredAccommodations.map((accommodation) => (
-                                        <AccommodationCard
-                                            key={accommodation?._id}
-                                            accommodation={accommodation}
-                                            userId={userId}
-                                            isFavorite={favorites?.some(fav => fav?._id === accommodation?._id)}
-                                            onToggleFavorite={handleToggleFavorite}
-                                        />
-                                    ))
-                                ) : (
-                                    <NoAccommodationsFound />
-                                )}
-                            </div>
+                            <PaginatedAccommodations
+                                accommodations={filteredAccommodations || []}
+                                userId={userId}
+                                favorites={favorites}
+                                onToggleFavorite={handleToggleFavorite}
+                                AccommodationCard={AccommodationCard}
+                                NoAccommodationsFound={NoAccommodationsFound}
+                            />
                         )}
                     </div>
                 </div>
