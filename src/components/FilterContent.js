@@ -12,7 +12,8 @@ import {
     FilterX,
     Filter,
     Star,
-    Heart
+    Heart,
+    IndianRupee,
 } from "lucide-react";
 
 import {
@@ -68,9 +69,7 @@ const CompanyInput = memo(({ value, onChange }) => (
     </div>
 ));
 
-// Modify the PriceInputs component to fix the dropdown and add sorting
 const PriceInputs = memo(({ filters, minPrice, maxPrice, onFilterChange }) => {
-    // Generate price ranges dynamically
     const generatePriceRanges = () => {
         const ranges = [];
         ranges.push({
@@ -105,19 +104,17 @@ const PriceInputs = memo(({ filters, minPrice, maxPrice, onFilterChange }) => {
     const priceRanges = generatePriceRanges();
 
     const getCurrentRange = () => {
-        const min = filters.minPrice; // Changed from tempInputs to filters
-        const max = filters.maxPrice; // Changed from tempInputs to filters
+        const min = filters.minPrice;
+        const max = filters.maxPrice;
 
         if (min === null && max === null) return 'all';
 
-        // Find the exact range match or custom range
         const selectedRange = priceRanges.find(range =>
             range.min === min && range.max === max
         );
 
         if (selectedRange) return selectedRange.value;
 
-        // If no exact match found, it's a custom range
         return `${min}-${max}`;
     };
 
@@ -156,29 +153,31 @@ const PriceInputs = memo(({ filters, minPrice, maxPrice, onFilterChange }) => {
     return (
         <div className="space-y-4">
             <Label>Price Range</Label>
+
             <Select
                 value={getCurrentRange()}
                 onValueChange={handleRangeChange}
             >
                 <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select price range" />
+                    <div className="flex items-center gap-2">
+                        <IndianRupee className="h-4 w-4 text-gray-400" />
+                        <SelectValue placeholder="Select price range" className="text-left" />
+                    </div>
                 </SelectTrigger>
                 <SelectContent>
                     {priceRanges.map((range) => (
-                        <SelectItem key={range.id} value={range.value}>
+                        <SelectItem key={range.id} value={range.value} className="text-left">
                             {range.label}
                         </SelectItem>
                     ))}
                 </SelectContent>
             </Select>
 
-            {/* Price Sorting Radio Buttons */}
             <div className="space-y-2">
                 <Label>Sort by Price</Label>
                 <RadioGroup
                     value={filters.sortPrice || ''}
                     onValueChange={(value) => {
-                        // If clicking the same radio button, clear the selection
                         if (value === filters.sortPrice) {
                             onFilterChange({
                                 target: {
