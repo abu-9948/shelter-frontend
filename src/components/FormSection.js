@@ -22,7 +22,6 @@ const FormSection = ({
   const [touched, setTouched] = useState({});
   const isLastStep = currentStep === totalSteps;
 
-  // Validate required fields for current step
   const validateStep = () => {
     const currentFields = fields.filter(field => field.required);
     const emptyFields = currentFields.filter(field => {
@@ -33,7 +32,6 @@ const FormSection = ({
     if (emptyFields.length > 0) {
       const fieldNames = emptyFields.map(field => field.label).join(', ');
       toast.error(`Please fill in required fields: ${fieldNames}`);
-      // Mark empty fields as touched
       const newTouched = {};
       emptyFields.forEach(field => {
         newTouched[field.name] = true;

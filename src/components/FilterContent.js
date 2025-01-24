@@ -36,7 +36,6 @@ const locations = [
     { value: 'visakhapatnam', label: 'Visakhapatnam' },
 ];
 
-// Memoized input components to prevent re-renders
 const SearchInput = memo(({ value, onChange }) => (
     <div className="space-y-2">
         <Label>Search</Label>

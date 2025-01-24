@@ -266,7 +266,7 @@ const SignInPage = () => {
                     'Sign In'
                   )}
                 </Button>
-                <div className="relative">
+                {/* <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-gray-300" />
                   </div>
@@ -288,7 +288,7 @@ const SignInPage = () => {
                     className="h-4 w-4 mr-2"
                   />
                   Sign in with Google
-                </Button>
+                </Button> */}
                 <p className="text-center text-sm text-gray-600">
                   Don't have an account?{' '}
                   <a

@@ -1,16 +1,21 @@
 import React from 'react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
-         AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, 
-         AlertDialogTitle, AlertDialogTrigger } from "../components/ui/alert-dialog";
+import { Switch } from "../components/ui/switch";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+  AlertDialogTitle, AlertDialogTrigger
+} from "../components/ui/alert-dialog";
 import { Edit2, Trash2, MapPin, IndianRupee, Loader2, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Loader from './Loader';
 
-const AccommodationList = ({ 
-  accommodations = [], 
-  isLoading = false, 
+const AccommodationList = ({
+  accommodations = [],
+  isLoading = false,
   isDeleting = false,
   showActions = true,
   onDelete,
@@ -18,15 +23,67 @@ const AccommodationList = ({
   showFavorites = false,
   onToggleFavorite,
   userId,
-  onAccommodationClick
+  onAccommodationClick,
+  setAccommodations
 }) => {
   const navigate = useNavigate();
+  const [updatingId, setUpdatingId] = React.useState(null);
+  const [localAccommodations, setLocalAccommodations] = React.useState(accommodations);
+
+  React.useEffect(() => {
+    setLocalAccommodations(accommodations);
+  }, [accommodations]);
+
+  const handleAvailabilityToggle = async (accommodation) => {
+    try {
+      setUpdatingId(accommodation._id);
+      const newAvailableStatus = !accommodation.available;
+      setLocalAccommodations(prev =>
+        prev.map(acc =>
+          acc._id === accommodation._id
+            ? { ...acc, available: newAvailableStatus }
+            : acc
+        )
+      );
+
+      const response = await axios.put(`${process.env.REACT_APP_ACCOMMODATION}/update/${accommodation._id}`, {
+        ...accommodation,
+        available: newAvailableStatus,
+        userId
+      });
+
+      if (response.status === 200) {
+        toast.success(`${accommodation.name} is now ${newAvailableStatus ? 'available' : 'unavailable'}`);
+        setAccommodations?.(localAccommodations);
+      } else {
+        setLocalAccommodations(prev =>
+          prev.map(acc =>
+            acc._id === accommodation._id
+              ? { ...acc, available: accommodation.available }
+              : acc
+          )
+        );
+        toast.error(`Failed to update ${accommodation.name}'s availability`);
+      }
+    } catch (error) {
+      toast.error(`Failed to update ${accommodation.name}'s availability`);
+      setLocalAccommodations(prev =>
+        prev.map(acc =>
+          acc._id === accommodation._id
+            ? { ...acc, available: accommodation.available }
+            : acc
+        )
+      );
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   if (isLoading) {
     return <Loader />;
   }
 
-  if (accommodations.length === 0) {
+  if (localAccommodations.length === 0) {
     return (
       <div className="col-span-full flex items-center justify-center h-40 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
         <p className="text-gray-500">No accommodations found</p>
@@ -35,22 +92,32 @@ const AccommodationList = ({
   }
 
   const handleCardClick = (e, accommodationId) => {
-    // Prevent clicking the card when clicking action buttons
     if (e.target.closest('button')) return;
     onAccommodationClick?.(accommodationId);
   };
 
   return (
     <div className={`grid ${gridCols} gap-6`}>
-      {accommodations.map((accommodation) => (
-        <Card 
-          key={accommodation._id} 
+      {localAccommodations.map((accommodation) => (
+        <Card
+          key={accommodation._id}
           className="hover:shadow-lg transition-shadow cursor-pointer"
           onClick={(e) => handleCardClick(e, accommodation._id)}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xl font-medium">{accommodation.name}</CardTitle>
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 items-center">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500">
+                  {accommodation.available ? 'Available' : 'Unavailable'}
+                </span>
+                <Switch
+                  checked={accommodation.available}
+                  disabled={updatingId === accommodation._id}
+                  onCheckedChange={() => handleAvailabilityToggle(accommodation)}
+                  className="data-[state=checked]:bg-[#6366F1]"
+                />
+              </div>
               {showFavorites && (
                 <Button
                   variant="ghost"

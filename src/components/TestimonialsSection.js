@@ -90,16 +90,24 @@ const TestimonialsSection = () => {
             >
                 <motion.div 
                     className="grid grid-cols-1 md:grid-cols-3 gap-6"
-                    initial={false}
-                    animate={{ opacity: [0, 1] }}
+                    initial={{ x: 100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -100, opacity: 0 }}
                     key={currentSet}
-                    transition={{ duration: 0.5 }}
+                    transition={{
+                        duration: 0.6,
+                        staggerChildren: 0.1,
+                        ease: "easeOut"
+                    }}
                 >
                     {getCurrentSetTestimonials().map((testimonial, index) => (
-                        <Card 
+                        <motion.div
                             key={index}
-                            className="border border-gray-100 shadow-md hover:shadow-lg transition-all duration-300"
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: index * 0.1 }}
                         >
+                            <Card className="border border-gray-100 shadow-md hover:shadow-lg transition-all duration-300">
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-4 mb-4">
                                     <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center">
@@ -119,18 +127,21 @@ const TestimonialsSection = () => {
 
                                 <p className="text-gray-600 text-sm mb-2">{testimonial.content}</p>
                             </CardContent>
-                        </Card>
+                            </Card>
+                        </motion.div>
                     ))}
                 </motion.div>
 
                 <div className="flex justify-center mt-8 gap-2">
                     {[...Array(totalSets)].map((_, index) => (
-                        <button
+                        <motion.button
                             key={index}
                             onClick={() => setCurrentSet(index)}
                             className={`w-2 h-2 rounded-full transition-all duration-300 ${
                                 currentSet === index ? 'bg-indigo-500 w-4' : 'bg-gray-300'
                             }`}
+                            whileHover={{ scale: 1.2 }}
+                            whileTap={{ scale: 0.9 }}
                             aria-label={`Go to slide set ${index + 1}`}
                         />
                     ))}
@@ -138,6 +149,6 @@ const TestimonialsSection = () => {
             </div>
         </div>
     );
-};
+}
 
 export default TestimonialsSection;

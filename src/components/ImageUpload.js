@@ -1,4 +1,3 @@
-// ImageUpload.jsx
 import React, { useEffect } from 'react';
 import { X, Upload } from 'lucide-react';
 import { Button } from './ui/button';
@@ -6,7 +5,6 @@ import { Button } from './ui/button';
 const ImageUpload = ({ images, onImageUpload, onRemoveImage, disabled }) => {
     const fileInputRef = React.useRef(null);
 
-    // Cleanup URLs on component unmount
     useEffect(() => {
         return () => {
             images.forEach(image => {

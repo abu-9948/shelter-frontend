@@ -20,15 +20,12 @@ const PaginatedAccommodations = ({
   const [currentPage, setCurrentPage] = React.useState(1);
   const itemsPerPage = 8;
   
-  // Calculate total pages
   const totalPages = Math.ceil(accommodations.length / itemsPerPage);
   
-  // Get current page items
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = accommodations.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Generate page numbers
   const getPageNumbers = () => {
     const delta = 2;
     const range = [];

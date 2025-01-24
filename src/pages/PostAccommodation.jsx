@@ -14,7 +14,6 @@ const PostAccommodation = () => {
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
-        // Convert saved image data back to proper format
         if (parsed.images) {
           parsed.images = parsed.images.map(img => ({
             ...img,
@@ -90,22 +89,22 @@ const PostAccommodation = () => {
   }, [accommodation]);
   useEffect(() => {
     const saveTimeout = setTimeout(async () => {
-        const dataToSave = {
-            ...accommodation,
-            images: accommodation.images.map(image => ({
-                name: image.file?.name,
-                type: image.file?.type,
-                data: image.preview,
-                isExisting: image.isExisting,
-                url: image.url
-            }))
-        };
-        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(dataToSave));
+      const dataToSave = {
+        ...accommodation,
+        images: accommodation.images.map(image => ({
+          name: image.file?.name,
+          type: image.file?.type,
+          data: image.preview,
+          isExisting: image.isExisting,
+          url: image.url
+        }))
+      };
+      localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(dataToSave));
     }, 1000);
 
     return () => clearTimeout(saveTimeout);
   }, [accommodation]);
-  
+
   useEffect(() => {
     return () => {
       const shouldClearDraft = localStorage.getItem('clearAccommodationDraft');
@@ -113,7 +112,10 @@ const PostAccommodation = () => {
         localStorage.removeItem(AUTOSAVE_KEY);
         localStorage.removeItem('clearAccommodationDraft');
       }
-    };
+      if (localStorage.getItem(AUTOSAVE_KEY)) {
+        toast.success("Your previous draft has been restored.")
+      }
+    }
   }, []);
 
   useBeforeUnload(
@@ -164,66 +166,58 @@ const PostAccommodation = () => {
 
     setIsLoading(true);
     try {
-        const formDataToSend = new FormData();
+      const formDataToSend = new FormData();
 
-        // Add non-file fields
-        Object.keys(accommodation).forEach(key => {
-            if (key !== 'images') {
-                if (key === 'price' || key === 'available_spaces') {
-                    formDataToSend.append(key, Number(accommodation[key]));
-                } else {
-                    formDataToSend.append(key, accommodation[key]);
-                }
-            }
-        });
-
-        // Handle amenities
-        if (typeof accommodation.amenities === 'string') {
-            const amenitiesArray = accommodation.amenities
-                .split(',')
-                .map(item => item.trim())
-                .filter(item => item);
-            formDataToSend.append('amenities', JSON.stringify(amenitiesArray));
+      Object.keys(accommodation).forEach(key => {
+        if (key !== 'images') {
+          if (key === 'price' || key === 'available_spaces') {
+            formDataToSend.append(key, Number(accommodation[key]));
+          } else {
+            formDataToSend.append(key, accommodation[key]);
+          }
         }
+      });
 
-        // Add image files
-        accommodation.images.forEach(image => {
-            if (image.file) {
-                formDataToSend.append('images', image.file);
-            }
-        });
+      if (typeof accommodation.amenities === 'string') {
+        const amenitiesArray = accommodation.amenities
+          .split(',')
+          .map(item => item.trim())
+          .filter(item => item);
+        formDataToSend.append('amenities', JSON.stringify(amenitiesArray));
+      }
 
-        const response = await axios.post(
-            `${process.env.REACT_APP_ACCOMMODATION}/add/${userId}`,
-            formDataToSend,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                }
-            }
-        );
-
-        if (response.status === 201) {
-            localStorage.setItem('clearAccommodationDraft', 'true');
-            toast.success('Accommodation posted successfully!');
-            navigate('/manage-accommodations');
+      accommodation.images.forEach(image => {
+        if (image.file) {
+          formDataToSend.append('images', image.file);
         }
+      });
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_ACCOMMODATION}/add/${userId}`,
+        formDataToSend,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        }
+      );
+
+      if (response.status === 201) {
+        localStorage.setItem('clearAccommodationDraft', 'true');
+        toast.success('Accommodation posted successfully!');
+        navigate('/manage-accommodations');
+      }
     } catch (error) {
-        console.error('Error posting accommodation:', error);
-        toast.error(error.response?.data?.error || 'Failed to post accommodation');
+      console.error('Error posting accommodation:', error);
+      toast.error(error.response?.data?.error || 'Failed to post accommodation');
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-};
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        {localStorage.getItem(AUTOSAVE_KEY) && (
-          <div className="mb-4 p-4 bg-blue-50 text-blue-700 rounded-lg">
-            Your previous draft has been restored. You can continue where you left off.
-          </div>
-        )}
         <AccommodationForm
           accommodation={accommodation}
           onChange={handleChange}

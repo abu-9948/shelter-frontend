@@ -1,6 +1,7 @@
+/* eslint-disable jsx-a11y/img-redundant-alt */
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Star, MapPin, Building2, IndianRupee, ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { MapPin, Building2, IndianRupee, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import {
     Tooltip,

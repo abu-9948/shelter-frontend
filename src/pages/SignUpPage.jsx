@@ -148,7 +148,7 @@ const SignUpPage = () => {
                 ) : 'Create Account'}
               </Button>
 
-              <div className="relative">
+              {/* <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-gray-300" />
                 </div>
@@ -168,7 +168,7 @@ const SignUpPage = () => {
                   className="h-4 w-4 mr-2"
                 />
                 Sign up with Google
-              </Button>
+              </Button> */}
 
               <p className="text-center text-sm text-gray-600">
                 Already have an account?{' '}

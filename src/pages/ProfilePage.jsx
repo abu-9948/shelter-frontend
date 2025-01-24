@@ -37,6 +37,7 @@ const ProfilePage = () => {
     const fetchUserAccommodations = async () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/by-user/${userId}`);
+            console.log(response)
             setAccommodations(response.data);
         } catch (error) {
             console.error('Failed to fetch accommodations');
@@ -46,6 +47,8 @@ const ProfilePage = () => {
     const fetchUserFavorites = async () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/favs/${userId}`);
+
+            console.log("response: ", response.data)
             setFavorites(response.data);
         } catch (error) {
             console.error('Failed to fetch favorites');
@@ -150,16 +153,14 @@ const ProfilePage = () => {
     }
 
     const handleToggleFavorite = async (accommodationId, isFavorite) => {
+        console.log("accommodationId: ", accommodationId)
         try {
             if (isFavorite) {
-                await axios.delete(`${process.env.REACT_APP_ACCOMMODATION}/favs/remove`, {
-                    data: { userId, accommodationId }
-                });
+                await axios.delete(`${process.env.REACT_APP_ACCOMMODATION}/favs/remove/${userId}`, { 
+                    data: { accommodationId } 
+                  });
             } else {
-                await axios.post(`${process.env.REACT_APP_ACCOMMODATION}/favs/add`, {
-                    userId,
-                    accommodationId
-                });
+                await axios.post(`${process.env.REACT_APP_ACCOMMODATION}/favs/add/${userId}`, { accommodationId });
             }
             fetchUserFavorites();
             toast.success(isFavorite ? 'Removed from favorites' : 'Added to favorites');

@@ -124,14 +124,12 @@ const AccommodationForm = ({
   const handleFormSubmit = async () => {
     const formData = new FormData();
     
-    // Append all form fields
     Object.keys(accommodation).forEach(key => {
       if (key !== 'images') {
         formData.append(key, accommodation[key]);
       }
     });
 
-    // Append images
     images.forEach(image => {
       if (image instanceof File) {
         formData.append('images', image);

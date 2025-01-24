@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
@@ -24,7 +25,6 @@ const AccommodationsPage = () => {
         showFavorites: false,
         sortPrice: null, 
     });
-    // State for temporary input values
     const [tempInputs, setTempInputs] = useState({
         search: '',
         companyName: '',
@@ -39,7 +39,6 @@ const AccommodationsPage = () => {
     }, [userId]);
 
     useEffect(() => {
-        // Only apply filters for non-input changes
         if (!isInputValueChanged()) {
             applyFilters();
         }
@@ -65,9 +64,12 @@ const AccommodationsPage = () => {
         setIsLoading(true);
         try {
             const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/get`);
-            const reversedAccommodations = [...response.data].reverse();
-            setAccommodations(reversedAccommodations);
-            setFilteredAccommodations(reversedAccommodations);
+            const availableAccommodations = [...response.data]
+                .filter(acc => acc.available === true)
+                .reverse();
+            
+            setAccommodations(availableAccommodations);
+            setFilteredAccommodations(availableAccommodations);
         } catch (error) {
             toast.error('Failed to fetch accommodations');
         } finally {
@@ -115,7 +117,6 @@ const AccommodationsPage = () => {
     const applyFilters = () => {
         let filtered = [...accommodations];
 
-        // Text search filters
         if (filters.search) {
             filtered = filtered.filter(acc => 
                 acc.name?.toLowerCase().includes(filters.search?.toLowerCase())
@@ -132,7 +133,6 @@ const AccommodationsPage = () => {
             );
         }
 
-        // Price range filter
         if (filters.minPrice !== null) {
             filtered = filtered.filter(acc => acc.price >= filters.minPrice);
         }
@@ -140,12 +140,10 @@ const AccommodationsPage = () => {
             filtered = filtered.filter(acc => acc.price <= filters.maxPrice);
         }
 
-        // Rating filter
         if (filters.rating > 0) {
             filtered = filtered.filter(acc => acc.rating >= filters.rating);
         }
 
-        // Favorites filter
         if (filters.showFavorites) {
             filtered = filtered.filter(acc => 
                 favorites.some(fav => fav._id === acc._id)
