@@ -108,15 +108,19 @@ const AccommodationList = ({
             <CardTitle className="text-xl font-medium">{accommodation.name}</CardTitle>
             <div className="flex space-x-2 items-center">
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-500">
-                  {accommodation.available ? 'Available' : 'Unavailable'}
-                </span>
-                <Switch
-                  checked={accommodation.available}
-                  disabled={updatingId === accommodation._id}
-                  onCheckedChange={() => handleAvailabilityToggle(accommodation)}
-                  className="data-[state=checked]:bg-[#6366F1]"
-                />
+                {!showFavorites &&
+                  <>
+                    <span className="text-sm text-gray-500">
+                      {accommodation.available ? 'Available' : 'Unavailable'}
+                    </span>
+                    <Switch
+                      checked={accommodation.available}
+                      disabled={updatingId === accommodation._id}
+                      onCheckedChange={() => handleAvailabilityToggle(accommodation)}
+                      className="data-[state=checked]:bg-[#6366F1]"
+                    />
+                  </>
+                }
               </div>
               {showFavorites && (
                 <Button

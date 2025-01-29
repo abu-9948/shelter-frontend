@@ -5,7 +5,6 @@ import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { getUserType } from '../utils/userType';
 import {
     Building2,
     MapPin,
@@ -14,7 +13,10 @@ import {
     Phone,
     Users,
     Hash,
-    ArrowLeft
+    ArrowLeft,
+    Home,
+    Building,
+    MapPinHouse
 } from 'lucide-react';
 import Loader from '../components/Loader';
 import AccommodationReviews from '../components/review/AccommodationReviews';
@@ -24,10 +26,17 @@ const AccommodationDetails = () => {
     const { accommodation_id } = useParams();
     const navigate = useNavigate();
     const { userId, userName } = useAuth();
-    
+
     const [accommodation, setAccommodation] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    const capitalizeFirst = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+    const roomTypeOptions = {
+        'pg_hostel': 'PG/Hostel',
+        'full_house': 'Full House',
+        'flatmates': 'Flatmates'
+    };
 
     useEffect(() => {
         fetchAccommodationDetails();
@@ -69,19 +78,17 @@ const AccommodationDetails = () => {
                     Back to Accommodations
                 </Button>
             </div>
-            
+
             <div className="max-w-4xl mx-auto space-y-8">
-                {/* Image Gallery */}
                 <ImageGallery images={accommodation.images} />
 
-                {/* Accommodation Details Card */}
                 <Card>
                     <CardHeader>
                         <div className="flex justify-between items-start">
                             <div>
                                 <CardTitle className="text-3xl font-bold mb-2">{accommodation.name}</CardTitle>
                                 <div className="flex items-center text-gray-500">
-                                    <MapPin className="h-4 w-4 mr-1" />
+                                    <MapPinHouse className="h-4 w-4 mr-1" />
                                     <span>{accommodation.location}</span>
                                 </div>
                             </div>
@@ -107,6 +114,14 @@ const AccommodationDetails = () => {
                                     <Phone className="h-5 w-5 text-gray-400 mr-2" />
                                     <span className="text-gray-600">{accommodation.phone}</span>
                                 </div>
+                                {accommodation.occupancyType &&
+                                    <div className="flex items-center">
+                                        <Home className="h-5 w-5 text-gray-400 mr-2" />
+                                        <span className="text-gray-600">
+                                            {capitalizeFirst(accommodation.occupancyType)}
+                                        </span>
+                                    </div>
+                                }
                             </div>
                             <div className="space-y-3">
                                 <div className="flex items-center">
@@ -117,16 +132,24 @@ const AccommodationDetails = () => {
                                     <Hash className="h-5 w-5 text-gray-400 mr-2" />
                                     <span className="text-gray-600">Flat: {accommodation.flatNumber}</span>
                                 </div>
+                                {accommodation.roomType &&
+                                    <div className="flex items-center">
+                                        <Building className="h-5 w-5 text-gray-400 mr-2" />
+                                        <span className="text-gray-600">
+                                            {roomTypeOptions[accommodation.roomType]}
+                                        </span>
+                                    </div>
+                                }
                             </div>
                         </div>
-                        
+
                         {accommodation.description && (
                             <div>
                                 <h3 className="font-semibold mb-2">Description</h3>
                                 <p className="text-gray-600">{accommodation.description}</p>
                             </div>
                         )}
-                        
+
                         {accommodation.address && (
                             <div>
                                 <h3 className="font-semibold mb-2">Address</h3>

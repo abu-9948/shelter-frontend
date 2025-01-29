@@ -1,11 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { MessageSquare, Trash2, Reply, Loader2 } from 'lucide-react';
+import { MessageSquare, Trash2, Reply, Loader2, Clock } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { getUserType } from '../../utils/userType';
 import { useUserProfiles } from '../../contexts/UserProfilesContext';
+
+const timeAgo = (date) => {
+    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+    const intervals = {
+        year: 31536000,
+        month: 2592000,
+        week: 604800,
+        day: 86400,
+        hour: 3600,
+        minute: 60
+    };
+
+    for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+        const interval = Math.floor(seconds / secondsInUnit);
+        if (interval >= 1) {
+            return interval === 1 ? `1 ${unit} ago` : `${interval} ${unit}s ago`;
+        }
+    }
+    return 'just now';
+};
 
 const ReplySection = ({ reviewId, userId, accommodationId }) => {
     const [replies, setReplies] = useState([]);
@@ -45,18 +64,14 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_REPLY}/get-reply/${reviewId}`);
 
-            // Filter out nested replies from the main list
             const mainReplies = response.data.filter(reply => !reply.parent_reply_id);
             setReplies(mainReplies);
 
-            // Collect all unique user IDs
             const userIds = new Set();
             response.data.forEach(reply => userIds.add(reply.user_id));
 
-            // Fetch profiles for all users at once
             await fetchMultipleProfiles(Array.from(userIds));
 
-            // Fetch nested replies for each reply
             mainReplies.forEach(reply => {
                 fetchNestedReplies(reply.reply_id);
             });
@@ -70,7 +85,6 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
             const response = await axios.get(`${process.env.REACT_APP_REPLY}/get-reply-reply/${replyId}`);
             const nestedRepliesData = response.data;
 
-            // Collect user IDs from nested replies
             const userIds = new Set(nestedRepliesData.map(reply => reply.user_id));
             await fetchMultipleProfiles(Array.from(userIds));
 
@@ -91,7 +105,6 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
 
         setLoading(true);
         try {
-            const currentUser = userProfiles[userId];
             await axios.post(`${process.env.REACT_APP_REPLY}/add-reply/${reviewId}`, {
                 user_id: userId,
                 reply_text: replyText
@@ -117,7 +130,6 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
 
         setLoading(true);
         try {
-            const currentUser = userProfiles[userId];
             await axios.post(`${process.env.REACT_APP_REPLY}/reply-reply/${parentReplyId}`, {
                 user_id: userId,
                 review_id: reviewId,
@@ -148,22 +160,8 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
         }
     };
 
-
     const ReplyComponent = ({ reply, isNested = false }) => {
-        const [replyUserType, setReplyUserType] = useState(null);
         const profile = userProfiles[reply.user_id];
-
-        useEffect(() => {
-            const checkUserType = async () => {
-                const type = await getUserType(
-                    accommodationId,
-                    reply.user_id,
-                    reviewId
-                );
-                setReplyUserType(type);
-            };
-            checkUserType();
-        }, [reply.user_id]);
 
         const handleNestedReplyTextChange = (e) => {
             const value = e.target.value;
@@ -174,59 +172,67 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
         };
 
         return (
-            <div className={`p-3 rounded-lg ${isNested ? 'ml-8 bg-gray-50' : 'bg-white border'} mb-2`}>
-                <div className="flex items-center gap-2 mb-2">
-                    <ProfileImage userId={reply.user_id} />
-                    <div className="flex flex-col">
-                        <span className="font-medium text-gray-900">
-                            {profile?.name || 'Loading...'}
-                            {replyUserType &&
-                                <span className="ml-2 text-sm font-normal text-gray-500">
-                                    ({replyUserType})
+            <div className={`${isNested ? 'ml-8 bg-gray-50' : 'bg-white border'} mb-2 rounded-lg`}>
+                <div className="p-4 rounded-lg group/reply hover:bg-blue-50 transition-colors">
+                    <div className="flex items-center gap-2 mb-2 justify-between">
+                        <div className="flex items-center gap-2">
+                            <ProfileImage userId={reply.user_id} />
+                            <div className="flex flex-col">
+                                <span className="font-medium text-gray-900">
+                                    {profile?.name || 'Loading...'}
                                 </span>
-                            }
-                        </span>
+                            </div>
+                        </div>
+                        <p className="text-sm text-gray-500 flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {timeAgo(reply.created_at || reply.updatedAt)}
+                        </p>
+                    </div>
+
+                    <div className="ml-10">
+                        <div className="flex items-center gap-2">
+                            <p className="text-gray-700 flex-grow">{reply.reply_text}</p>
+                            <div className="opacity-0 group-hover/reply:opacity-100 transition-opacity flex items-center gap-2 ml-4">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                        setShowNestedReplyInput(prev => ({
+                                            ...prev,
+                                            [reply.reply_id]: !prev[reply.reply_id]
+                                        }));
+                                    }}
+                                    className="text-gray-500 hover:text-gray-700 px-2 py-1"
+                                >
+                                    <Reply className="h-4 w-4 mr-1" />
+                                    Reply
+                                </Button>
+
+                                {reply.user_id === userId && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleDeleteReply(reply.reply_id, isNested)}
+                                        className="text-red-500 hover:text-red-700 px-2 py-1"
+                                    >
+                                        <Trash2 className="h-4 w-4 mr-1" />
+                                        Delete
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <p className="text-gray-700 ml-10">{reply.reply_text}</p>
-
-                <div className="mt-2 ml-10 flex items-center gap-2">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                            setShowNestedReplyInput(prev => ({
-                                ...prev,
-                                [reply.reply_id]: !prev[reply.reply_id]
-                            }));
-                        }}
-                        className="text-gray-500 hover:text-gray-700"
-                    >
-                        <Reply className="h-4 w-4 mr-1" />
-                        Reply
-                    </Button>
-
-                    {reply.user_id === userId && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteReply(reply.reply_id, isNested)}
-                            className="text-red-500 hover:text-red-700"
-                        >
-                            <Trash2 className="h-4 w-4 mr-1" />
-                            Delete
-                        </Button>
-                    )}
-                </div>
-
                 {showNestedReplyInput[reply.reply_id] && (
-                    <div className="ml-10 mt-2">
+                    <div className="ml-10 mt-2 p-3">
                         <Textarea
+                            key={`nested-reply-${reply.reply_id}`}
                             value={nestedReplyText[reply.reply_id] || ''}
                             onChange={handleNestedReplyTextChange}
                             placeholder="Write your reply..."
                             className="min-h-[80px] mb-2"
+                            autoFocus
                         />
                         <div className="flex gap-2">
                             <Button
@@ -270,6 +276,7 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
             </div>
         );
     };
+
 
     return (
         <div className="mt-4">
