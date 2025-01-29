@@ -5,6 +5,7 @@ import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
+import { getUserType } from '../utils/userType';
 import {
     Building2,
     MapPin,
@@ -26,6 +27,7 @@ const AccommodationDetails = () => {
     
     const [accommodation, setAccommodation] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+
 
     useEffect(() => {
         fetchAccommodationDetails();

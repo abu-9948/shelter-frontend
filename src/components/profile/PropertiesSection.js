@@ -64,7 +64,7 @@ const PropertiesSection = ({
                   <p className="text-gray-500">You haven't listed any properties yet.</p>
                   <Button
                     variant="default"
-                    onClick={() => navigate('/add-accommodation')}
+                    onClick={() => navigate('/post-accommodation')}
                     className="mt-4 bg-[#6366F1] hover:bg-[#4F46E5]"
                   >
                     Add Your First Property
