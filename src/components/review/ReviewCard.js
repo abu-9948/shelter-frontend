@@ -1,7 +1,8 @@
-import React from 'react';
-import { Card, CardContent} from "../ui/card";
+import React, { useState } from 'react';
+import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
-import { Clock, Edit2 } from 'lucide-react';
+import { Clock, Edit2, MessageSquare } from 'lucide-react';
+import ReplySection from './ReplySection';
 
 const timeAgo = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
@@ -30,7 +31,17 @@ const formatRating = (rating) => {
     return Number.isInteger(numRating) ? numRating.toString() : numRating.toFixed(1);
 };
 
-const ReviewCard = ({ review, isUserReview, onEdit }) => {
+const ReviewCard = ({ review, isUserReview, onEdit, userId, userName, accommodationId }) => {
+    const [showReplies, setShowReplies] = useState(false);
+
+    const ProfileImage = ({ user }) => (
+        <div className={`h-10 w-10 rounded-full ${isUserReview ? 'bg-violet-200' : 'bg-gray-200'} flex items-center justify-center overflow-hidden`}>
+            <span className={`font-semibold ${isUserReview ? 'text-violet-700' : 'text-gray-700'}`}>
+                {user.user_name?.charAt(0).toUpperCase()}
+            </span>
+        </div>
+    );
+
     return (
         <Card className={isUserReview ? 'border-violet-200 bg-violet-50' : ''}>
             <CardContent className="pt-4">
@@ -38,11 +49,7 @@ const ReviewCard = ({ review, isUserReview, onEdit }) => {
                     <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
-                                <div className={`h-10 w-10 rounded-full ${isUserReview ? 'bg-violet-200' : 'bg-gray-200'} flex items-center justify-center`}>
-                                    <span className={`font-semibold ${isUserReview ? 'text-violet-700' : 'text-gray-700'}`}>
-                                        {review.user_name?.charAt(0).toUpperCase()}
-                                    </span>
-                                </div>
+                                <ProfileImage user={review} />
                                 <div>
                                     <p className="font-semibold text-gray-900">
                                         {review.user_name}
@@ -96,6 +103,25 @@ const ReviewCard = ({ review, isUserReview, onEdit }) => {
                         </p>
                     </div>
                 </div>
+                <div className="mt-4 flex items-center gap-2">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowReplies(!showReplies)}
+                        className="text-violet-600"
+                    >
+                        <MessageSquare className="h-4 w-4 mr-1" />
+                        {showReplies ? 'Hide Replies' : 'Show Replies'}
+                    </Button>
+                </div>
+
+                {showReplies && (
+                    <ReplySection
+                        reviewId={review.review_id}
+                        userId={userId}
+                        userName={userName}
+                    />
+                )}
             </CardContent>
         </Card>
     );

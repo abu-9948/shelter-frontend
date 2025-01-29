@@ -7,7 +7,8 @@ import AccommodationCard from '../components/AccommodationCard';
 import FilterSidebar from '../components/FilterSidebar';
 import PaginatedAccommodations from '../components/PaginatedAccommodations';
 import { useAuth } from '../contexts/AuthContext';
-import { Search } from 'lucide-react';
+import { FilterX, Search } from 'lucide-react';
+import { Button } from '../components/ui/button';
 
 const AccommodationsPage = () => {
     const [accommodations, setAccommodations] = useState([]);
@@ -23,7 +24,9 @@ const AccommodationsPage = () => {
         maxPrice: null,
         rating: 0,
         showFavorites: false,
-        sortPrice: null, 
+        sortPrice: null,
+        occupancyType: '',
+        roomType: '',
     });
     const [tempInputs, setTempInputs] = useState({
         search: '',
@@ -38,11 +41,13 @@ const AccommodationsPage = () => {
         }
     }, [userId]);
 
+    console.log(filteredAccommodations)
+
     useEffect(() => {
         if (!isInputValueChanged()) {
             applyFilters();
         }
-    }, [filters.location, filters.sortPrice, filters.maxPrice, filters.maxPrice, filters.rating, filters.showFavorites, accommodations, favorites]);
+    }, [filters.location, filters.sortPrice, filters.maxPrice, filters.maxPrice, filters.rating, filters.showFavorites, accommodations, favorites, filters.occupancyType, filters.roomType]);
 
     const isInputValueChanged = () => {
         return filters.search !== tempInputs.search ||
@@ -103,6 +108,8 @@ const AccommodationsPage = () => {
             rating: 0,
             showFavorites: false,
             sortPrice: null, 
+            occupancyType: '',
+            roomType: '',
         };
         setFilters(clearedFilters);
         setTempInputs({
@@ -132,24 +139,30 @@ const AccommodationsPage = () => {
                 acc.companyName?.toLowerCase().includes(filters.companyName?.toLowerCase())
             );
         }
-
+        if (filters.occupancyType) {
+            filtered = filtered.filter(acc => 
+                acc.occupancyType === filters.occupancyType
+            );
+        }
+        if (filters.roomType) {
+            filtered = filtered.filter(acc => 
+                acc.roomType === filters.roomType
+            );
+        }
         if (filters.minPrice !== null) {
             filtered = filtered.filter(acc => acc.price >= filters.minPrice);
         }
         if (filters.maxPrice !== null) {
             filtered = filtered.filter(acc => acc.price <= filters.maxPrice);
         }
-
         if (filters.rating > 0) {
             filtered = filtered.filter(acc => acc.rating >= filters.rating);
         }
-
         if (filters.showFavorites) {
             filtered = filtered.filter(acc => 
                 favorites.some(fav => fav._id === acc._id)
             );
         }
-
         if (filters.sortPrice) {
             filtered.sort((a, b) => {
                 if (filters.sortPrice === 'desc') {
@@ -189,6 +202,16 @@ const AccommodationsPage = () => {
         if (tempInputs.companyName) {
             filtered = filtered.filter(acc => 
                 acc.companyName?.toLowerCase().includes(tempInputs.companyName?.toLowerCase())
+            );
+        }
+        if (filters.occupancyType) {
+            filtered = filtered.filter(acc => 
+                acc.occupancyType === filters.occupancyType
+            );
+        }
+        if (filters.roomType) {
+            filtered = filtered.filter(acc => 
+                acc.roomType === filters.roomType
             );
         }
         if (tempInputs.minPrice !== null) {
@@ -250,10 +273,19 @@ const AccommodationsPage = () => {
     const NoAccommodationsFound = () => (
         <div className="col-span-full flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
             <Search className="h-8 w-8 text-gray-400 mb-2" />
-            <p className="text-gray-500 text-center">
+            <p className="text-gray-500 text-center mb-4">
                 No accommodations found<br />
                 <span className="text-sm">Try adjusting your filters</span>
             </p>
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={clearFilters}
+                className="flex items-center gap-2"
+            >
+                <FilterX className="h-4 w-4" />
+                Clear Filters
+            </Button>
         </div>
     );
 

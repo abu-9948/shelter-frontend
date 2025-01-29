@@ -14,6 +14,7 @@ const AccommodationReviews = ({ accommodationId, userId, userName, onReviewSubmi
     useEffect(() => {
         fetchReviews();
     }, [accommodationId]);
+    
 
     const fetchReviews = async () => {
         try {
@@ -93,6 +94,9 @@ const AccommodationReviews = ({ accommodationId, userId, userName, onReviewSubmi
                                 review={userReview}
                                 isUserReview={true}
                                 onEdit={() => setEditingReview(userReview)}
+                                userId={userId}
+                                userName={userName}
+                                accommodationId={accommodationId}
                             />
                         </div>
                     )}
@@ -123,6 +127,9 @@ const AccommodationReviews = ({ accommodationId, userId, userName, onReviewSubmi
                                     key={index}
                                     review={review}
                                     isUserReview={false}
+                                    userId={userId}
+                                    userName={userName}
+                                    accommodationId={accommodationId}
                                 />
                             ))}
                         </div>

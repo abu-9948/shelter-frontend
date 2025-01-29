@@ -16,6 +16,7 @@ import AboutPage from './pages/AboutPage';
 import AccommodationDetails from './pages/AccommodationDetails';
 import Footer from './components/Footer';
 import Documentation from './pages/Documentation';
+import { UserProfilesProvider } from './contexts/UserProfilesContext';
 
 const NotFound = () => {
   useEffect(() => {
@@ -35,77 +36,79 @@ const NotFound = () => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={
-                <RouteWrapper title="Home">
-                  <HomePage />
-                </RouteWrapper>
-              } />
-              <Route path="/about" element={
-                <RouteWrapper title="About Us">
-                  <AboutPage />
-                </RouteWrapper>
-              } />
-              <Route path="/signin" element={
-                <RouteWrapper title="Sign In" isPublicOnly>
+      <UserProfilesProvider>
+        <Router>
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow">
+              <Routes>
+                <Route path="/" element={
+                  <RouteWrapper title="Home">
+                    <HomePage />
+                  </RouteWrapper>
+                } />
+                <Route path="/about" element={
+                  <RouteWrapper title="About Us">
+                    <AboutPage />
+                  </RouteWrapper>
+                } />
+                <Route path="/signin" element={
+                  <RouteWrapper title="Sign In" isPublicOnly>
                     <SignInPage />
-                </RouteWrapper>
-              } />
-              <Route path="/signup" element={
-                <RouteWrapper title="Sign Up" isPublicOnly>
+                  </RouteWrapper>
+                } />
+                <Route path="/signup" element={
+                  <RouteWrapper title="Sign Up" isPublicOnly>
                     <SignUpPage />
-                </RouteWrapper>
-              } />
-              <Route path="/reset-password/:token" element={
-                <RouteWrapper title="Reset Password" isPublicOnly>
+                  </RouteWrapper>
+                } />
+                <Route path="/reset-password/:token" element={
+                  <RouteWrapper title="Reset Password" isPublicOnly>
                     <ResetPasswordPage />
-                </RouteWrapper>
-              } />
-              <Route path="/profile" element={
-                <RouteWrapper title="Profile" requireAuth>
+                  </RouteWrapper>
+                } />
+                <Route path="/profile" element={
+                  <RouteWrapper title="Profile" requireAuth>
                     <ProfilePage />
-                </RouteWrapper>
-              } />
-              <Route path="/post-accommodation" element={
-                <RouteWrapper title="Post Accommodation" requireAuth>
+                  </RouteWrapper>
+                } />
+                <Route path="/post-accommodation" element={
+                  <RouteWrapper title="Post Accommodation" requireAuth>
                     <PostAccommodation />
-                </RouteWrapper>
-              } />
-              <Route path="manage-accommodations" element={
-                <RouteWrapper title="Manage Accommodations" requireAuth>
+                  </RouteWrapper>
+                } />
+                <Route path="manage-accommodations" element={
+                  <RouteWrapper title="Manage Accommodations" requireAuth>
                     <ManageAccommodations />
-                </RouteWrapper>
-              } />
-              <Route path="/manage-accommodation/:id" element={
-                <RouteWrapper title="Edit Accommodation" requireAuth>
+                  </RouteWrapper>
+                } />
+                <Route path="/manage-accommodation/:id" element={
+                  <RouteWrapper title="Edit Accommodation" requireAuth>
                     <EditAccommodation />
-                </RouteWrapper>
-              } />
-              <Route path="/accommodations" element={
-                <RouteWrapper title="Accommodations" requireAuth>
+                  </RouteWrapper>
+                } />
+                <Route path="/accommodations" element={
+                  <RouteWrapper title="Accommodations" requireAuth>
                     <AccommodationsPage />
-                </RouteWrapper>
-              } />
-              <Route path="/accommodations/:accommodation_id" element={
-                <RouteWrapper title="Accommodation Details" requireAuth>
+                  </RouteWrapper>
+                } />
+                <Route path="/accommodations/:accommodation_id" element={
+                  <RouteWrapper title="Accommodation Details" requireAuth>
                     <AccommodationDetails />
-                </RouteWrapper>
-              } />
-              <Route path="/documentation" element={
-                <RouteWrapper title="Documentation">
+                  </RouteWrapper>
+                } />
+                <Route path="/documentation" element={
+                  <RouteWrapper title="Documentation">
                     <Documentation />
-                </RouteWrapper>
-              } />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </Router>
+                  </RouteWrapper>
+                } />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </Router>
+      </UserProfilesProvider>
     </AuthProvider>
   );
 }

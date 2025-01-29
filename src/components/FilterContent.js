@@ -14,6 +14,7 @@ import {
     Star,
     Heart,
     IndianRupee,
+    Users,
 } from "lucide-react";
 
 import {
@@ -36,8 +37,51 @@ const locations = [
     { value: 'visakhapatnam', label: 'Visakhapatnam' },
 ];
 
-const SearchInput = memo(({ value, onChange }) => (
+const occupancyTypes = [
+    { value: 'boys', label: 'Boys' },
+    { value: 'ladies', label: 'Ladies' },
+    { value: 'coliving', label: 'Co-living/Bachelor' },
+    { value: 'family', label: 'Family' }
+];
+
+const roomTypes = [
+    { value: 'pg_hostel', label: 'PG/Hostel' },
+    { value: 'full_house', label: 'Full House' },
+    { value: 'flatmates', label: 'Flatmates' }
+];
+
+const LocationSelect = memo(({ value, onChange }) => (
     <div className="space-y-2">
+        <Label className="text-sm font-medium">Location</Label>
+        <Select
+            value={value}
+            onValueChange={(value) => onChange({
+                target: {
+                    name: 'location',
+                    value
+                }
+            })}
+        >
+            <SelectTrigger className="w-full">
+                <div className="flex items-center">
+                    <MapPin className="h-4 w-4 text-gray-400 mr-2" />
+                    <SelectValue placeholder="Select location" />
+                </div>
+            </SelectTrigger>
+            <SelectContent>
+                {locations.map((location) => (
+                    <SelectItem key={location.value} value={location.value}>
+                        {location.label}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
+    </div>
+));
+
+
+const SearchInput = memo(({ value, onChange }) => (
+    <div className="space-y-1">
         <Label>Search</Label>
         <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -53,7 +97,7 @@ const SearchInput = memo(({ value, onChange }) => (
 ));
 
 const CompanyInput = memo(({ value, onChange }) => (
-    <div className="space-y-2">
+    <div className="space-y-1">
         <Label>Company</Label>
         <div className="relative">
             <Building2 className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -65,6 +109,66 @@ const CompanyInput = memo(({ value, onChange }) => (
                 className="pl-10"
             />
         </div>
+    </div>
+));
+
+const OccupancyTypeSelect = memo(({ value, onChange }) => (
+    <div className="space-y-1">
+        <Label>Occupancy Type</Label>
+        <Select
+            value={value || "all"}
+            onValueChange={(value) => onChange({
+                target: {
+                    name: 'occupancyType',
+                    value: value === "all" ? null : value
+                }
+            })}
+        >
+            <SelectTrigger className="w-full">
+                <div className="flex items-center">
+                    <Users className="h-4 w-4 text-gray-400 mr-2" />
+                    <SelectValue placeholder="Select occupancy type" />
+                </div>
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                {occupancyTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
+    </div>
+));
+
+const RoomTypeSelect = memo(({ value, onChange }) => (
+    <div className="space-y-1">
+        <Label>Room Type</Label>
+        <Select
+            value={value || "all"}
+            onValueChange={(value) => onChange({
+                target: {
+                    name: 'roomType',
+                    value: value === "all" ? null : value
+                }
+            })}
+        >
+            <SelectTrigger className="w-full">
+                <div className="flex items-center">
+                    <Users className="h-4 w-4 text-gray-400 mr-2" />
+                    <SelectValue placeholder="Select occupancy type" />
+                </div>
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                {roomTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
     </div>
 ));
 
@@ -150,7 +254,7 @@ const PriceInputs = memo(({ filters, minPrice, maxPrice, onFilterChange }) => {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-1">
             <Label>Price Range</Label>
 
             <Select
@@ -172,7 +276,7 @@ const PriceInputs = memo(({ filters, minPrice, maxPrice, onFilterChange }) => {
                 </SelectContent>
             </Select>
 
-            <div className="space-y-2">
+            <div className="space-y-1 pt-2">
                 <Label>Sort by Price</Label>
                 <RadioGroup
                     value={filters.sortPrice || ''}
@@ -194,7 +298,7 @@ const PriceInputs = memo(({ filters, minPrice, maxPrice, onFilterChange }) => {
                         }
                     }}
                 >
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 pb-1">
                         <RadioGroupItem value="desc" id="highToLow" />
                         <Label htmlFor="highToLow">High to Low</Label>
                     </div>
@@ -229,150 +333,150 @@ const FilterContent = memo(({
         ? Math.min(...accommodations.map(acc => acc.price), 0)
         : DEFAULT_MIN_PRICE;
 
-    const handleLocationChange = (value) => {
-        onFilterChange({
-            target: {
-                name: 'location',
-                value: value
-            }
-        });
-    };
-
     return (
-        <div className="space-y-6">
-            {/* Location Dropdown */}
-            <div className="space-y-2">
-                <Label>Location</Label>
-                <Select
-                    value={filters.location}
-                    onValueChange={handleLocationChange}
-                >
-                    <SelectTrigger className="w-full">
-                        <div className="flex items-center">
-                            <MapPin className="h-4 w-4 text-gray-400 mr-2" />
-                            <SelectValue placeholder="Select location" />
-                        </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                        {locations.map((location) => (
-                            <SelectItem key={location.value} value={location.value}>
-                                {location.label}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            <div className="space-y-4">
-                <SearchInput
-                    value={tempInputs.search}
-                    onChange={onInputChange}
-                />
-                <CompanyInput
-                    value={tempInputs.companyName}
-                    onChange={onInputChange}
-                />
-            </div>
-
-            <PriceInputs
-                filters={filters}
-                minPrice={minPrice}
-                maxPrice={maxPrice}
-                onFilterChange={onFilterChange}
-            />
-
-            {/* Rating Filter */}
-            <div className="space-y-4">
-                <Label>Minimum Rating</Label>
-                <div className="flex items-center space-x-2">
-                    {[1, 2, 3, 4, 5].map((rating) => (
-                        <Button
-                            key={rating}
-                            variant={filters.rating >= rating ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => {
-                                onFilterChange({
-                                    target: {
-                                        name: 'rating',
-                                        value: filters.rating === rating ? 0 : rating
-                                    }
-                                });
-                            }}
-                            className="p-2"
-                        >
-                            <Star className={`h-4 w-4 ${filters.rating >= rating ? "fill-current" : ""}`} />
-                        </Button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Favorites Filter */}
-            <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                    <Switch
-                        id="favorites"
-                        checked={filters.showFavorites}
-                        onCheckedChange={(checked) => {
-                            onFilterChange({
-                                target: {
-                                    name: 'showFavorites',
-                                    value: checked
-                                }
-                            });
-                        }}
+        <div className="h-[85vh] flex flex-col">
+            {/* Scrollable Content Area */}
+            <div className="flex-1 overflow-y-auto px-1">
+                <div className="space-y-4">
+                    {/* Location Dropdown */}
+                    <LocationSelect
+                        value={filters.location}
+                        onChange={onFilterChange}
                     />
-                    <Label htmlFor="favorites" className="flex items-center space-x-2">
-                        <span>Show Favorites Only</span>
-                        <Heart className="h-4 w-4 text-red-500" />
-                    </Label>
+
+                    {/* Search and Company Inputs */}
+                    <div className="space-y-4">
+                        <SearchInput
+                            value={tempInputs.search}
+                            onChange={onInputChange}
+                        />
+                        <CompanyInput
+                            value={tempInputs.companyName}
+                            onChange={onInputChange}
+                        />
+                    </div>
+
+                    {/* Occupancy Type */}
+                    <div className="space-y-2">
+                        <OccupancyTypeSelect
+                            value={filters.occupancyType}
+                            onChange={onFilterChange}
+                        />
+                    </div>
+
+                    {/* Room Type */}
+                    <div className="space-y-2">
+                        <RoomTypeSelect
+                            value={filters.roomType}
+                            onChange={onFilterChange}
+                        />
+                    </div>
+
+                    {/* Price Inputs */}
+                    <div className="space-y-4">
+                        <PriceInputs
+                            filters={filters}
+                            minPrice={minPrice}
+                            maxPrice={maxPrice}
+                            onFilterChange={onFilterChange}
+                        />
+                    </div>
+
+                    {/* Rating Filter */}
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium">Minimum Rating</Label>
+                        <div className="flex items-center space-x-2">
+                            {[1, 2, 3, 4, 5].map((rating) => (
+                                <Button
+                                    key={rating}
+                                    variant={filters.rating >= rating ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => {
+                                        onFilterChange({
+                                            target: {
+                                                name: 'rating',
+                                                value: filters.rating === rating ? 0 : rating
+                                            }
+                                        });
+                                    }}
+                                    className="p-2"
+                                >
+                                    <Star className={`h-4 w-4 ${filters.rating >= rating ? "fill-current" : ""}`} />
+                                </Button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Favorites Filter */}
+                    <div className="py-2">
+                        <div className="flex items-center space-x-2">
+                            <Switch
+                                id="favorites"
+                                checked={filters.showFavorites}
+                                onCheckedChange={(checked) => {
+                                    onFilterChange({
+                                        target: {
+                                            name: 'showFavorites',
+                                            value: checked
+                                        }
+                                    });
+                                }}
+                            />
+                            <Label htmlFor="favorites" className="flex items-center space-x-2">
+                                <span>Show Favorites Only</span>
+                                <Heart className="h-4 w-4 text-red-500" />
+                            </Label>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="space-y-2">
-                <Button
-                    variant="default"
-                    className="w-full bg-[#6366F1] hover:bg-[#5558D9] disabled:opacity-50"
-                    onClick={onApplyFilters}
-                    disabled={isLoading || (
-                        !tempInputs.search &&
-                        !tempInputs.companyName &&
-                        tempInputs.minPrice === null &&
-                        tempInputs.maxPrice === null &&
-                        !filters.location &&
-                        !filters.rating &&
-                        !filters.showFavorites
-                    )}
-                >
-                    <div className="flex items-center justify-center">
-                        {isLoading ? (
-                            <>
-                                <span className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                Applying...
-                            </>
-                        ) : (
-                            <>
-                                <Filter className="h-4 w-4 mr-2" />
-                                Apply Filters
-                            </>
-                        )}
-                    </div>
-                </Button>
-                <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={onClearFilters}
-                    disabled={isLoading}
-                >
-                    <FilterX className="h-4 w-4 mr-2" />
-                    Clear All
-                </Button>
-            </div>
-
-            {/* Results Count */}
-            <div className="pt-4 border-t">
+            {/* Fixed Bottom Section */}
+            <div className="sticky bottom-0 bg-white border-t pt-2 space-y-2">
+                {/* Results Count */}
                 <div className="flex items-center gap-2 text-gray-600 justify-center">
                     <span>{accommodations.length} accommodations found</span>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="space-y-2">
+                    <Button
+                        variant="default"
+                        className="w-full bg-[#6366F1] hover:bg-[#5558D9] disabled:opacity-50"
+                        onClick={onApplyFilters}
+                        disabled={isLoading || (
+                            !tempInputs.search &&
+                            !tempInputs.companyName &&
+                            tempInputs.minPrice === null &&
+                            tempInputs.maxPrice === null &&
+                            !filters.location &&
+                            !filters.rating &&
+                            !filters.showFavorites
+                        )}
+                    >
+                        <div className="flex items-center justify-center">
+                            {isLoading ? (
+                                <>
+                                    <span className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                    Applying...
+                                </>
+                            ) : (
+                                <>
+                                    <Filter className="h-4 w-4 mr-2" />
+                                    Apply Filters
+                                </>
+                            )}
+                        </div>
+                    </Button>
+                    <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={onClearFilters}
+                        disabled={isLoading}
+                    >
+                        <FilterX className="h-4 w-4 mr-2" />
+                        Clear All
+                    </Button>
                 </div>
             </div>
         </div>
