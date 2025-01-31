@@ -26,7 +26,18 @@ const timeAgo = (date) => {
     return 'just now';
 };
 
-const ReplySection = ({ reviewId, userId, accommodationId }) => {
+// Simple function to check if user is owner
+const checkIsOwner = async (userId, accommodationId) => {
+    try {
+        const response = await axios.get(`${process.env.REACT_APP_ACCOMMODATION}/by-user/${userId}`);
+        return response.data.some(accom => accom._id === accommodationId);
+    } catch (error) {
+        console.error('Failed to check ownership:', error);
+        return false;
+    }
+};
+
+const ReplySection = ({ reviewId, userId, accommodationId, reviewUserId }) => {
     const [replies, setReplies] = useState([]);
     const [replyText, setReplyText] = useState('');
     const [showReplyInput, setShowReplyInput] = useState(false);
@@ -34,6 +45,7 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
     const [nestedReplies, setNestedReplies] = useState({});
     const [showNestedReplyInput, setShowNestedReplyInput] = useState({});
     const [nestedReplyText, setNestedReplyText] = useState({});
+    const [ownerStatuses, setOwnerStatuses] = useState({});
 
     const { userProfiles, fetchMultipleProfiles } = useUserProfiles();
 
@@ -41,42 +53,33 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
         fetchReplies();
     }, [reviewId]);
 
-    const ProfileImage = ({ userId }) => {
-        const profile = userProfiles[userId];
-        return (
-            <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                {profile?.profile_image ? (
-                    <img
-                        src={profile.profile_image}
-                        alt={profile.name}
-                        className="w-full h-full object-cover"
-                    />
-                ) : (
-                    <span className="font-semibold text-gray-700">
-                        {profile?.name?.charAt(0).toUpperCase() || '?'}
-                    </span>
-                )}
-            </div>
-        );
-    };
-
     const fetchReplies = async () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_REPLY}/get-reply/${reviewId}`);
-
             const mainReplies = response.data.filter(reply => !reply.parent_reply_id);
             setReplies(mainReplies);
 
-            const userIds = new Set();
-            response.data.forEach(reply => userIds.add(reply.user_id));
-
+            // Get user profiles
+            const userIds = new Set(response.data.map(reply => reply.user_id));
             await fetchMultipleProfiles(Array.from(userIds));
 
+            // Check for owners
+            const ownerChecks = {};
+            await Promise.all(
+                Array.from(userIds).map(async (uid) => {
+                    const isOwner = await checkIsOwner(uid, accommodationId);
+                    ownerChecks[uid] = isOwner;
+                })
+            );
+            setOwnerStatuses(ownerChecks);
+
+            // Fetch nested replies
             mainReplies.forEach(reply => {
                 fetchNestedReplies(reply.reply_id);
             });
         } catch (error) {
             console.error('Error fetching replies:', error);
+            toast.error('Failed to fetch replies');
         }
     };
 
@@ -85,8 +88,21 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
             const response = await axios.get(`${process.env.REACT_APP_REPLY}/get-reply-reply/${replyId}`);
             const nestedRepliesData = response.data;
 
+            // Get user profiles for nested replies
             const userIds = new Set(nestedRepliesData.map(reply => reply.user_id));
             await fetchMultipleProfiles(Array.from(userIds));
+
+            // Check for owners
+            const ownerChecks = {};
+            await Promise.all(
+                Array.from(userIds).map(async (uid) => {
+                    if (ownerStatuses[uid] === undefined) {
+                        const isOwner = await checkIsOwner(uid, accommodationId);
+                        ownerChecks[uid] = isOwner;
+                    }
+                })
+            );
+            setOwnerStatuses(prev => ({ ...prev, ...ownerChecks }));
 
             setNestedReplies(prev => ({
                 ...prev,
@@ -94,6 +110,7 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
             }));
         } catch (error) {
             console.error('Error fetching nested replies:', error);
+            toast.error('Failed to fetch nested replies');
         }
     };
 
@@ -146,11 +163,12 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
             setLoading(false);
         }
     };
+
     const handleDeleteReply = async (replyId, isNested = false) => {
         try {
             const endpoint = isNested
                 ? `${process.env.REACT_APP_REPLY}/delete-reply-reply/${replyId}`
-                : `${process.env.REACT_APP_REPLY}/delete-reply/${replyId}`
+                : `${process.env.REACT_APP_REPLY}/delete-reply/${replyId}`;
 
             await axios.delete(endpoint);
             toast.success('Reply deleted successfully');
@@ -160,8 +178,31 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
         }
     };
 
+    const ProfileImage = ({ userId }) => {
+        const profile = userProfiles[userId];
+        const isOwner = ownerStatuses[userId];
+        const isAuthor = userId === reviewUserId;
+
+        const getBadgeStyle = () => {
+            if (isOwner) return 'bg-blue-200 text-blue-700';
+            if (isAuthor) return 'bg-violet-200 text-violet-700';
+            return 'bg-gray-200 text-gray-700';
+        };
+
+        return (
+            <div className={`h-8 w-8 rounded-full ${getBadgeStyle()} flex items-center justify-center overflow-hidden`}>
+                <span className="font-semibold">
+                    {profile?.name?.charAt(0).toUpperCase() || '?'}
+                </span>
+            </div>
+        );
+    };
+
     const ReplyComponent = ({ reply, isNested = false }) => {
         const profile = userProfiles[reply.user_id];
+        const isOwner = ownerStatuses[reply.user_id];
+        const isAuthor = reply.user_id === reviewUserId;
+        const isCurrentUserReply = userId === reply.user_id;
 
         const handleNestedReplyTextChange = (e) => {
             const value = e.target.value;
@@ -171,16 +212,48 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
             }));
         };
 
+        const getBadgeStyle = () => {
+            switch(true) {
+                case isOwner:
+                    return 'bg-blue-50 border-blue-200 text-blue-700';
+                case isAuthor:
+                    return 'bg-violet-50 border-violet-200 text-violet-700';
+                default:
+                    return isCurrentUserReply ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-200';
+            }
+        };
+
+        const getRoleBadge = () => {
+            if (isOwner) {
+                return (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                        Owner
+                    </span>
+                );
+            }
+            if (isAuthor) {
+                return (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-700">
+                        Author
+                    </span>
+                );
+            }
+            return null;
+        };
+
         return (
-            <div className={`${isNested ? 'ml-8 bg-gray-50' : 'bg-white border'} mb-2 rounded-lg`}>
-                <div className="p-4 rounded-lg group/reply hover:bg-blue-50 transition-colors">
+            <div className={`${isNested ? 'ml-8' : ''} mb-2 rounded-lg ${getBadgeStyle()}`}>
+                <div className="p-4 rounded-lg group/reply hover:bg-blue-50/50 transition-colors">
                     <div className="flex items-center gap-2 mb-2 justify-between">
                         <div className="flex items-center gap-2">
                             <ProfileImage userId={reply.user_id} />
                             <div className="flex flex-col">
-                                <span className="font-medium text-gray-900">
-                                    {profile?.name || 'Loading...'}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className="font-medium text-gray-900">
+                                        {profile?.name || 'Loading...'}
+                                    </span>
+                                    {getRoleBadge()}
+                                </div>
                             </div>
                         </div>
                         <p className="text-sm text-gray-500 flex items-center gap-1">
@@ -208,7 +281,7 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
                                     Reply
                                 </Button>
 
-                                {reply.user_id === userId && (
+                                {isCurrentUserReply && (
                                     <Button
                                         variant="ghost"
                                         size="sm"
@@ -276,7 +349,6 @@ const ReplySection = ({ reviewId, userId, accommodationId }) => {
             </div>
         );
     };
-
 
     return (
         <div className="mt-4">
