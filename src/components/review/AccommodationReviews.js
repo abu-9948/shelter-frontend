@@ -124,9 +124,9 @@ const AccommodationReviews = ({ accommodationId, userId, userName, onReviewSubmi
                         <div className="space-y-4 border-b pb-6">
                             {otherReviews.map((review, index) => (
                                 <ReviewCard
-                                    key={index}
                                     review={review}
                                     isUserReview={false}
+                                    onEdit={null}
                                     userId={userId}
                                     userName={userName}
                                     accommodationId={accommodationId}

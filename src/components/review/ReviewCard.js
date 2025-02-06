@@ -43,7 +43,7 @@ const checkIsOwner = async (userId, accommodationId) => {
     }
 };
 
-const ReviewCard = ({ review, onEdit, userId, userName, accommodationId }) => {
+const ReviewCard = ({ review, isUserReview, onEdit, userId, userName, accommodationId }) => {
     const [showReplies, setShowReplies] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
     const [isCurrentUserAuthor, setIsCurrentUserAuthor] = useState(false);
@@ -151,7 +151,7 @@ const ReviewCard = ({ review, onEdit, userId, userName, accommodationId }) => {
                         )}
                     </div>
                 </div>
-                <div className="mt-4 flex items-center gap-2">
+                <div className="mt-4 flex items-center justify-end gap-2">
                     <Button
                         variant="ghost"
                         size="sm"
@@ -166,6 +166,7 @@ const ReviewCard = ({ review, onEdit, userId, userName, accommodationId }) => {
                 {showReplies && (
                     <ReplySection
                         reviewId={review.review_id}
+                        isUserReview={isUserReview}
                         userId={userId}
                         userName={userName}
                         accommodationId={accommodationId}

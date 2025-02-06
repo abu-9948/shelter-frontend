@@ -135,6 +135,17 @@ const SignInPage = () => {
     }
   };
 
+  const handleKeyDown = (e, field) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (field === 'email') {
+        document.getElementById('password').focus();
+      } else if (field === 'password') {
+        handleSignIn(e);
+      }
+    }
+  };
+
   if (pageLoading) {
     return (
       <Loader />
@@ -218,6 +229,7 @@ const SignInPage = () => {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, 'email')}
                       placeholder="your@email.com"
                       className="pl-10"
                       disabled={isLoading}
@@ -245,6 +257,7 @@ const SignInPage = () => {
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, 'password')}
                       placeholder="••••••••"
                       className="pl-10"
                       disabled={isLoading}
@@ -303,7 +316,7 @@ const SignInPage = () => {
           </CardContent>
         </Card>
       </div>
-      <Toaster position="top-center"/>
+      <Toaster position="top-center" />
     </div>
   );
 };

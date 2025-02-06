@@ -37,7 +37,7 @@ const checkIsOwner = async (userId, accommodationId) => {
     }
 };
 
-const ReplySection = ({ reviewId, userId, accommodationId, reviewUserId }) => {
+const ReplySection = ({ reviewId, isUserReview, userId, accommodationId, reviewUserId }) => {
     const [replies, setReplies] = useState([]);
     const [replyText, setReplyText] = useState('');
     const [showReplyInput, setShowReplyInput] = useState(false);
@@ -180,17 +180,17 @@ const ReplySection = ({ reviewId, userId, accommodationId, reviewUserId }) => {
 
     const ProfileImage = ({ userId }) => {
         const profile = userProfiles[userId];
-        const isOwner = ownerStatuses[userId];
-        const isAuthor = userId === reviewUserId;
+        // const isOwner = ownerStatuses[userId];
+        // const isAuthor = userId === reviewUserId;
 
-        const getBadgeStyle = () => {
-            if (isOwner) return 'bg-blue-200 text-blue-700';
-            if (isAuthor) return 'bg-violet-200 text-violet-700';
-            return 'bg-gray-200 text-gray-700';
-        };
+        // const getBadgeStyle = () => {
+        //     if (isOwner) return 'bg-blue-200 text-blue-700';
+        //     if (isAuthor) return 'bg-violet-200 text-violet-700';
+        //     return '';
+        // };
 
         return (
-            <div className={`h-8 w-8 rounded-full ${getBadgeStyle()} flex items-center justify-center overflow-hidden`}>
+            <div className={`h-8 w-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center overflow-hidden`}>
                 <span className="font-semibold">
                     {profile?.name?.charAt(0).toUpperCase() || '?'}
                 </span>
@@ -212,17 +212,6 @@ const ReplySection = ({ reviewId, userId, accommodationId, reviewUserId }) => {
             }));
         };
 
-        const getBadgeStyle = () => {
-            switch(true) {
-                case isOwner:
-                    return 'bg-blue-50 border-blue-200 text-blue-700';
-                case isAuthor:
-                    return 'bg-violet-50 border-violet-200 text-violet-700';
-                default:
-                    return isCurrentUserReply ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-200';
-            }
-        };
-
         const getRoleBadge = () => {
             if (isOwner) {
                 return (
@@ -242,7 +231,7 @@ const ReplySection = ({ reviewId, userId, accommodationId, reviewUserId }) => {
         };
 
         return (
-            <div className={`${isNested ? 'ml-8' : ''} mb-2 rounded-lg ${getBadgeStyle()}`}>
+            <div className={`${isNested ? 'ml-8 border-r-0' : ''} mb-2 rounded-lg border border-1`}>
                 <div className="p-4 rounded-lg group/reply hover:bg-blue-50/50 transition-colors">
                     <div className="flex items-center gap-2 mb-2 justify-between">
                         <div className="flex items-center gap-2">
@@ -351,7 +340,7 @@ const ReplySection = ({ reviewId, userId, accommodationId, reviewUserId }) => {
     };
 
     return (
-        <div className="mt-4">
+        <div className="">
             <div className="flex items-center gap-2 mb-4">
                 <Button
                     variant="ghost"

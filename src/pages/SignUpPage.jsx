@@ -62,6 +62,28 @@ const SignUpPage = () => {
     }
   };
 
+  const handleKeyDown = (e, field) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      switch (field) {
+        case 'name':
+          document.getElementById('email').focus();
+          break;
+        case 'email':
+          document.getElementById('password').focus();
+          break;
+        case 'password':
+          document.getElementById('phone').focus();
+          break;
+        case 'phone':
+          handleSignUp();
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-lime-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto">
@@ -81,6 +103,7 @@ const SignUpPage = () => {
                     value={name}
                     placeholder="John Doe"
                     onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(e, 'name')}
                     className="pl-10"
                     disabled={isLoading}
                   />
@@ -97,6 +120,7 @@ const SignUpPage = () => {
                     value={email}
                     placeholder="your@email.com"
                     onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(e, 'email')}
                     className="pl-10"
                     disabled={isLoading}
                   />
@@ -113,6 +137,7 @@ const SignUpPage = () => {
                     value={password}
                     placeholder="••••••••"
                     onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(e, 'password')}
                     className="pl-10"
                     disabled={isLoading}
                   />
@@ -129,6 +154,11 @@ const SignUpPage = () => {
                     value={phoneNumber}
                     placeholder="Your phone number"
                     onChange={(e) => setPhoneNumber(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSignUp(e);
+                      }
+                    }}
                     className="pl-10"
                     disabled={isLoading}
                   />
