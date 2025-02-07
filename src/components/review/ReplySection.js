@@ -89,7 +89,8 @@ const ReplySection = ({ reviewId, isUserReview, userId, accommodationId, reviewU
     const fetchNestedReplies = async (replyId) => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_REPLY}/get-reply-reply/${replyId}`);
-            const nestedRepliesData = response.data;
+            const nestedRepliesData = response.data
+            .sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
 
             // Get user profiles for nested replies
             const userIds = new Set(nestedRepliesData.map(reply => reply.user_id));
