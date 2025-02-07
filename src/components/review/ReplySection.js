@@ -56,8 +56,11 @@ const ReplySection = ({ reviewId, isUserReview, userId, accommodationId, reviewU
     const fetchReplies = async () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_REPLY}/get-reply/${reviewId}`);
-            const mainReplies = response.data.filter(reply => !reply.parent_reply_id);
+            const mainReplies = response.data
+                .filter(reply => !reply.parent_reply_id)
+                .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
             setReplies(mainReplies);
+            console.log(mainReplies)
 
             // Get user profiles
             const userIds = new Set(response.data.map(reply => reply.user_id));
