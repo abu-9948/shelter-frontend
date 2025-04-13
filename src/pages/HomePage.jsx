@@ -39,7 +39,7 @@ const HomePage = () => {
 
   const features = [
     {
-      icon: <Building2 className="h-12 w-12 text-[#6366F1] mx-auto mb-4" />,
+      icon: <Building2 className="h-12 w-12 text-[hsl(239,84%,67%)] mx-auto mb-4" />,
       title: "Company-Based Search",
       description: "Find accommodations near your workplace or where your colleagues stay"
     },
