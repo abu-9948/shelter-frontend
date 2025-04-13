@@ -7,7 +7,6 @@ import {
   MessageSquare, 
   Users, 
   Shield, 
-  MapPin,
   Star 
 } from "lucide-react";
 import { motion } from "framer-motion";

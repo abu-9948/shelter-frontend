@@ -16,6 +16,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Cookies from 'js-cookie';
 import { Toaster, toast } from 'react-hot-toast';
 import Loader from '../components/Loader';
+import GoogleSignIn from '../components/GoogleSignIn';
 
 const SignInPage = () => {
   const [email, setEmail] = useState('');
@@ -279,6 +280,13 @@ const SignInPage = () => {
                     'Sign In'
                   )}
                 </Button>
+                <GoogleSignIn
+                  onSuccess={() => {
+                    // Any additional success handling
+                  }}
+                  isLoading={isLoading}
+                  setIsLoading={setIsLoading}
+                />
                 {/* <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-gray-300" />

@@ -90,7 +90,7 @@ const PropertiesSection = ({
                 <p className="text-gray-500">You haven't saved any properties to your favorites yet.</p>
                 <Button
                   variant="default"
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate('/accommodations')}
                   className="mt-4 bg-[#6366F1] hover:bg-[#4F46E5]"
                 >
                   Browse Properties

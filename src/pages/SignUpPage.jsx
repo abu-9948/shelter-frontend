@@ -7,6 +7,7 @@ import { Label } from "../components/ui/label";
 import { User, Mail, Lock, Phone, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
+import GoogleSignIn from '../components/GoogleSignIn';
 
 const SignUpPage = () => {
   const [name, setName] = useState('');
@@ -14,7 +15,7 @@ const SignUpPage = () => {
   const [password, setPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const navigate = useNavigate();
 
   const validateInputs = () => {
@@ -48,7 +49,7 @@ const SignUpPage = () => {
     } catch (error) {
       const errorMessage = error.response?.data?.message;
       const validationErrors = error.response?.data?.errors;
-      
+
       if (validationErrors) {
         toast.error(validationErrors.map(err => err.msg).join(', '));
       } else if (errorMessage === 'User with this email already exists') {
@@ -200,6 +201,14 @@ const SignUpPage = () => {
                 Sign up with Google
               </Button> */}
 
+              <GoogleSignIn
+                onSuccess={() => {
+                  // Any additional success handling
+                }}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+              />
+
               <p className="text-center text-sm text-gray-600">
                 Already have an account?{' '}
                 <a href="/signin" className="font-medium text-lime-600 hover:text-lime-500">
@@ -210,7 +219,7 @@ const SignUpPage = () => {
           </CardContent>
         </Card>
       </div>
-      <Toaster position="top-center"/>
+      <Toaster position="top-center" />
     </div>
   );
 };
